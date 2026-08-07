@@ -1,136 +1,266 @@
 <!DOCTYPE html>
-<html lang="en">
 
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    
     <title>MiniBank - Dashboard</title>
 
-    <!-- Google Fonts: Fraunces for display headings, Inter for body text, IBM Plex Mono for account/number styling -->
     <link
             href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
             rel="stylesheet"
     >
 
     <link rel="stylesheet" href="/style.css">
-    <!-- defer ensures the DOM is fully parsed before dashboard.js runs -->
     <script src="/dashboard.js" defer></script>
+   
+
 </head>
 
-<body>
+<body class="dashboard-body">
 
-<main class="page">
+<div class="dashboard">
 
-    <section class="login-panel">
+  
+    <!-- =====================================================
+         TOP NAVIGATION
+         ===================================================== -->
 
-        <header class="login-header">
-            <h1>Your Dashboard</h1>
+    <header class="dashboard-nav">
 
-            <p>
-                Welcome to MiniBank.
-            </p>
-        </header>
+        <div class="dashboard-brand">
+            <div class="dashboard-brand-mark">MB</div>
 
+            <div>
+                <strong>MiniBank</strong>
+                <span>Online Banking</span>
+            </div>
+        </div>
 
-        <!-- Account overview: values are populated dynamically via JS (placeholder text shown while loading) -->
-        <section>
-            <h2>Account</h2>
+        <div class="dashboard-user">
+            <span>Personal Banking</span>
 
-            <p>
-                Account number:
-                <strong id="accountNumber">Loading...</strong>
-            </p>
-
-            <p>
-                Balance:
-                <strong id="balance">Loading...</strong>
-            </p>
-        </section>
-
-
-        <!-- Money transfer form: submits to backend via JS (fetch), validated client- and server-side -->
-        <section>
-            <h2>Send Money</h2>
-
-            <form id="transactionForm">
-
-                <p class="field">
-                    <label for="toAccount">
-                        Target account
-                    </label>
-
-                    <input
-                            type="number"
-                            id="toAccount"
-                            name="toAccount"
-                            required
-                    >
-                </p>
-
-                <p class="field">
-                    <label for="amount">
-                        Amount
-                    </label>
-
-                    <!-- min/step restrict input to positive values with cent precision -->
-                    <input
-                            type="number"
-                            id="amount"
-                            name="amount"
-                            min="0.01"
-                            step="0.01"
-                            required
-                    >
-                </p>
-
-                <!-- Feedback messages: hidden by default, toggled visible by JS depending on request outcome -->
-                <p
-                        id="transactionError"
-                        class="login-error"
-                        hidden
-                ></p>
-
-                <p
-                        id="transactionSuccess"
-                        class="login-success"
-                        hidden
-                ></p>
-
-                <button type="submit">
-                    Send money
-                </button>
-
-            </form>
-        </section>
-
-
-        <!-- Transaction history: list populated asynchronously; status message shown while fetching -->
-        <section>
-            <h2>Transaction History</h2>
-
-            <p id="transactionStatus">
-                Loading transactions...
-            </p>
-
-            <ul id="transactionList"></ul>
-        </section>
-
-
-        <!-- Logout triggers session/token cleanup and redirect, handled in dashboard.js -->
-        <footer>
             <button
                     type="button"
                     id="logoutButton"
+                    class="logout-button"
             >
                 Log out
             </button>
-        </footer>
+        </div>
 
-    </section>
+    </header>
 
-</main>
+
+    <!-- =====================================================
+         MAIN CONTENT
+         ===================================================== -->
+
+    <main class="dashboard-content">
+
+        <header class="dashboard-welcome">
+            <div>
+                <p class="dashboard-eyebrow">
+                    ACCOUNT OVERVIEW
+                </p>
+
+                <h1>Your Dashboard</h1>
+
+                <p>
+                    Welcome to MiniBank.
+                </p>
+            </div>
+        </header>
+
+
+        <!-- =================================================
+             ACCOUNT OVERVIEW
+             ================================================= -->
+
+        <section class="dashboard-grid">
+
+            <article class="balance-card">
+
+                <div class="balance-card-top">
+
+                    <div>
+                        <p class="card-label">
+                            Available balance
+                        </p>
+
+                        <p
+                                id="balance"
+                                class="balance-value"
+                        >
+                            Loading...
+                        </p>
+                    </div>
+
+                    <div class="balance-icon">
+                        €
+                    </div>
+
+                </div>
+
+                <div class="balance-card-bottom">
+
+                    <div>
+                    <span class="account-label">
+                        Account number
+                    </span>
+
+                        <strong
+                                id="accountNumber"
+                                class="account-number"
+                        >
+                            Loading...
+                        </strong>
+                    </div>
+
+                    <span class="account-status">
+                    Active
+                </span>
+
+                </div>
+
+            </article>
+
+
+            <!-- =================================================
+                 SEND MONEY
+                 ================================================= -->
+
+            <article class="transfer-card">
+
+                <div class="section-heading">
+
+                    <div>
+                        <p class="section-eyebrow">
+                            PAYMENTS
+                        </p>
+
+                        <h2>Send money</h2>
+                    </div>
+
+                </div>
+
+
+                <form id="transactionForm">
+
+                    <div class="field">
+
+                        <label for="toAccount">
+                            Target account
+                        </label>
+
+                        <input
+                                type="number"
+                                id="toAccount"
+                                name="toAccount"
+                                placeholder="Account ID"
+                                min="1"
+                                required
+                        >
+
+                    </div>
+
+
+                    <div class="field">
+
+                        <label for="amount">
+                            Amount
+                        </label>
+
+                        <div class="amount-input">
+
+                            <span>€</span>
+
+                            <input
+                                    type="number"
+                                    id="amount"
+                                    name="amount"
+                                    placeholder="0.00"
+                                    min="0.01"
+                                    step="0.01"
+                                    required
+                            >
+
+                        </div>
+
+                    </div>
+
+
+                    <p
+                            id="transactionError"
+                            class="transaction-message transaction-error"
+                            hidden
+                    ></p>
+
+
+                    <p
+                            id="transactionSuccess"
+                            class="transaction-message transaction-success"
+                            hidden
+                    ></p>
+
+
+                    <button
+                            type="submit"
+                            class="transfer-button"
+                    >
+                        Send money
+                    </button>
+
+                </form>
+
+            </article>
+
+        </section>
+
+
+        <!-- =================================================
+             TRANSACTION HISTORY
+             ================================================= -->
+
+        <section class="transactions-card">
+
+            <div class="transactions-header">
+
+                <div>
+                    <p class="section-eyebrow">
+                        ACCOUNT ACTIVITY
+                    </p>
+
+                    <h2>Transaction history</h2>
+                </div>
+
+            </div>
+
+
+            <div class="transaction-content">
+
+                <p
+                        id="transactionStatus"
+                        class="transaction-status"
+                >
+                    Loading transactions...
+                </p>
+
+                <ul
+                        id="transactionList"
+                        class="transaction-list"
+                ></ul>
+
+            </div>
+
+        </section>
+
+    </main>
+  
+
+</div>
 
 </body>
-
 </html>

@@ -395,3 +395,627 @@ a:hover {
     transform: rotate(-45deg);
 
 }
+/* ============================================================
+DASHBOARD
+============================================================ */
+
+.dashboard-body {
+    display: block;
+    min-height: 100vh;
+    padding: 0;
+
+    
+    background:
+            linear-gradient(
+                    180deg,
+                    #eef2f5 0%,
+                    #f4f6f8 100%
+            );
+
+    color: var(--ink);
+    
+
+}
+
+/* ============================================================
+DASHBOARD SHELL
+============================================================ */
+
+.dashboard {
+    width: 100%;
+    min-height: 100vh;
+}
+
+/* ============================================================
+TOP NAVIGATION
+============================================================ */
+
+.dashboard-nav {
+    width: 100%;
+    min-height: 72px;
+    padding: 0 42px;
+
+    
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    background: var(--navy-deep);
+    color: white;
+
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    
+
+}
+
+.dashboard-brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.dashboard-brand-mark {
+    width: 38px;
+    height: 38px;
+
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(228, 200, 120, 0.6);
+    border-radius: 50%;
+
+    font-family: var(--font-mono);
+    font-size: 12px;
+
+    color: var(--gold-soft);
+    
+
+}
+
+.dashboard-brand strong {
+    display: block;
+
+    
+    font-family: var(--font-display);
+    font-size: 18px;
+    font-weight: 600;
+    
+
+}
+
+.dashboard-brand span {
+    display: block;
+    margin-top: 2px;
+
+    
+    color: #aebdd0;
+    font-size: 11px;
+    
+
+}
+
+.dashboard-user {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+
+    
+    font-size: 12px;
+    color: #b9c6d9;
+    
+
+}
+
+.logout-button {
+    width: auto;
+    height: 36px;
+
+    
+    padding: 0 16px;
+
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 6px;
+
+    background: transparent;
+    color: white;
+
+    font-size: 12px;
+    
+
+}
+
+.logout-button:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ============================================================
+MAIN CONTENT
+============================================================ */
+
+.dashboard-content {
+    width: 100%;
+    max-width: 1180px;
+
+    
+    margin: 0 auto;
+    padding: 48px 32px 70px;
+    
+
+}
+
+.dashboard-welcome {
+    margin-bottom: 30px;
+}
+
+.dashboard-eyebrow,
+.section-eyebrow {
+    margin: 0 0 7px;
+
+    
+    font-family: var(--font-mono);
+    font-size: 10px;
+    letter-spacing: 1.2px;
+
+    color: var(--gold);
+    
+
+}
+
+.dashboard-welcome h1 {
+    margin: 0 0 6px;
+
+    
+    font-family: var(--font-display);
+    font-size: 32px;
+    font-weight: 600;
+    
+
+}
+
+.dashboard-welcome > div > p:last-child {
+    margin: 0;
+
+    
+    color: var(--muted);
+    font-size: 14px;
+    
+
+}
+
+/* ============================================================
+MAIN GRID
+============================================================ */
+
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: 1.2fr 0.8fr;
+
+    
+    gap: 20px;
+
+    margin-bottom: 20px;
+    
+
+}
+
+/* ============================================================
+BALANCE CARD
+============================================================ */
+
+.balance-card {
+    min-height: 260px;
+
+    
+    padding: 30px;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    background:
+            linear-gradient(
+                    145deg,
+                    #194a7a 0%,
+                    #0d2949 100%
+            );
+
+    border-radius: 12px;
+
+    box-shadow:
+            0 16px 35px rgba(14, 42, 77, 0.18);
+
+    color: white;
+    
+
+}
+
+.balance-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.card-label {
+    margin: 0 0 10px;
+
+    
+    color: #b9c6d9;
+
+    font-size: 12px;
+    letter-spacing: 0.3px;
+    
+
+}
+
+.balance-value {
+    margin: 0;
+
+    
+    font-family: var(--font-mono);
+    font-size: 38px;
+    line-height: 1.1;
+
+    letter-spacing: -1px;
+    
+
+}
+
+.balance-icon {
+    width: 42px;
+    height: 42px;
+
+    
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border: 1px solid rgba(228, 200, 120, 0.35);
+    border-radius: 50%;
+
+    color: var(--gold-soft);
+
+    font-family: var(--font-mono);
+    
+
+}
+
+.balance-card-bottom {
+    padding-top: 20px;
+
+    
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+
+    border-top: 1px solid rgba(255, 255, 255, 0.13);
+    
+
+}
+
+.account-label {
+    display: block;
+
+    
+    margin-bottom: 6px;
+
+    color: #9fb0c5;
+
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    
+
+}
+
+.account-number {
+    display: block;
+
+    
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 500;
+
+    letter-spacing: 0.5px;
+    
+
+}
+
+.account-status {
+    padding: 5px 9px;
+
+    
+    border: 1px solid rgba(228, 200, 120, 0.3);
+    border-radius: 20px;
+
+    color: var(--gold-soft);
+
+    font-size: 10px;
+    
+
+}
+
+/* ============================================================
+TRANSFER CARD
+============================================================ */
+
+.transfer-card {
+    padding: 28px;
+
+    
+    background: white;
+
+    border: 1px solid var(--paper-line);
+    border-radius: 12px;
+
+    box-shadow:
+            0 8px 25px rgba(14, 42, 77, 0.06);
+    
+
+}
+
+.section-heading {
+    margin-bottom: 24px;
+}
+
+.section-heading h2,
+.transactions-header h2 {
+    margin: 0;
+
+    
+    font-family: var(--font-display);
+    font-size: 21px;
+    font-weight: 600;
+    
+
+}
+
+.field {
+    margin: 0 0 16px;
+}
+
+.field label {
+    margin-bottom: 7px;
+}
+
+.transfer-card input {
+    height: 42px;
+
+
+    background: #f8fafb;
+
+
+}
+
+.amount-input {
+    position: relative;
+}
+
+.amount-input > span {
+    position: absolute;
+
+
+    left: 13px;
+    top: 50%;
+
+    transform: translateY(-50%);
+
+    color: var(--muted);
+
+    font-family: var(--font-mono);
+    font-size: 13px;
+
+    pointer-events: none;
+
+
+}
+
+.amount-input input {
+    padding-left: 32px;
+}
+
+.transfer-button {
+    margin-top: 4px;
+
+
+    height: 44px;
+
+    background: var(--navy-deep);
+
+
+}
+
+.transfer-button:hover {
+    background: var(--navy-mid);
+}
+
+/* ============================================================
+TRANSACTION MESSAGES
+============================================================ */
+
+.transaction-message {
+    margin: 8px 0 12px;
+    padding: 9px 11px;
+
+    border-radius: 6px;
+
+    font-size: 12px;
+
+
+}
+
+.transaction-error {
+    background: #fdf0f0;
+    border: 1px solid #efd0d0;
+
+    color: #9b3333;
+
+
+}
+
+.transaction-success {
+    background: #eef7f2;
+    border: 1px solid #cfe5d9;
+
+
+    color: #356a50;
+
+}
+
+/* ============================================================
+TRANSACTION HISTORY
+============================================================ */
+
+.transactions-card {
+    background: white;
+
+
+    border: 1px solid var(--paper-line);
+    border-radius: 12px;
+
+    box-shadow:
+            0 8px 25px rgba(14, 42, 77, 0.05);
+
+    overflow: hidden;
+
+
+}
+
+.transactions-header {
+    padding: 24px 28px;
+
+    border-bottom: 1px solid var(--paper-line);
+
+
+}
+
+.transaction-content {
+    min-height: 160px;
+    padding: 0;
+}
+
+.transaction-status {
+    margin: 0;
+    padding: 25px 28px;
+
+
+    color: var(--muted);
+    font-size: 13px;
+
+
+}
+
+.transaction-list {
+    margin: 0;
+    padding: 0;
+
+    list-style: none;
+
+
+}
+
+.transaction-list li {
+    min-height: 70px;
+
+
+    padding: 15px 28px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    border-bottom: 1px solid #edf0f3;
+
+    font-size: 13px;
+
+
+}
+
+.transaction-list li:last-child {
+    border-bottom: none;
+}
+
+.transaction-list li:hover {
+    background: #fafbfc;
+}
+
+/* ============================================================
+RESPONSIVE
+============================================================ */
+
+@media (max-width: 850px) {
+
+
+    .dashboard-nav {
+    padding: 0 24px;
+}
+
+
+    .dashboard-content {
+        padding: 36px 22px 55px;
+    }
+
+
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+
+
+    .balance-card {
+        min-height: 230px;
+    }
+
+
+}
+
+@media (max-width: 600px) {
+
+
+    .dashboard-nav {
+    min-height: 64px;
+    padding: 0 16px;
+}
+
+
+    .dashboard-user > span {
+        display: none;
+    }
+
+
+    .dashboard-content {
+        padding: 28px 15px 45px;
+    }
+
+
+    .dashboard-welcome h1 {
+        font-size: 27px;
+    }
+
+
+    .balance-card {
+        padding: 23px;
+    }
+
+
+    .balance-value {
+        font-size: 31px;
+    }
+
+
+    .transfer-card {
+        padding: 22px;
+    }
+
+
+    .transactions-header {
+        padding: 20px 22px;
+    }
+
+
+    .transaction-list li {
+        padding: 14px 20px;
+    }
+
+
+}
