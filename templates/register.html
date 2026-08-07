@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 
-    <title>MiniBank — Konto eröffnen</title>
+    <title>MiniBank - Open Account</title>
 
+    <!-- Preconnect hints speed up font loading by establishing the connection early -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <!-- Fraunces for display headings, Inter for body text, IBM Plex Mono for the card number -->
     <link
             href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
             rel="stylesheet"
     >
 
     <link rel="stylesheet" href="/style.css">
+    <!-- defer ensures the DOM is fully parsed before register.js runs -->
     <script src="/register.js" defer></script>
 
 
@@ -27,23 +30,26 @@
 <main class="page">
 
 
+    <!-- Left brand panel: purely decorative/marketing, shared across login/register pages -->
     <aside class="brand">
 
         <p class="brand-mark">MB</p>
 
         <h1 class="brand-headline">
-            Klar sehen,<br>
-            ruhig entscheiden.
+            See clearly,<br>
+            decide calmly.
         </h1>
 
         <p class="brand-copy">
-            Ihr Konto, Ihre Übersicht, jederzeit erreichbar.
+            Your account, your overview, available anytime.
         </p>
 
+        <!-- Mock bank card visual for branding purposes; not tied to any real account data -->
         <figure class="card-preview">
 
+            <!-- Screen-reader-only caption clarifying this is just a visual example -->
             <figcaption class="visually-hidden">
-                Beispiel einer MiniBank Testkarte
+                Example MiniBank test card
             </figcaption>
 
             <span class="card-chip" aria-hidden="true"></span>
@@ -52,13 +58,14 @@
                 TEST CARD
             </p>
 
+            <!-- Non-breaking spaces keep the card number grouped together on line wraps -->
             <p class="card-number">
                 4921&nbsp;6384&nbsp;1750&nbsp;2604
             </p>
 
             <p class="card-meta">
             <span class="card-holder">
-                M. MUSTERMANN
+                M. SAMPLE
             </span>
 
                 <span class="card-expiry">
@@ -74,14 +81,15 @@
 
     </aside>
 
+    <!-- Right panel: registration form and logic -->
     <section class="login-panel">
 
         <header class="login-header">
 
-            <h2>Konto eröffnen</h2>
+            <h2>Open an account</h2>
 
             <p>
-                Erstellen Sie Ihr persönliches MiniBank-Konto.
+                Create your personal MiniBank account.
             </p>
 
         </header>
@@ -90,16 +98,18 @@
 
             <fieldset>
 
+                <!-- Visually hidden legend gives screen readers context without cluttering the UI -->
                 <legend class="visually-hidden">
-                    Registrierungsdaten
+                    Registration details
                 </legend>
 
                 <p class="field">
 
                     <label for="username">
-                        Benutzername
+                        Username
                     </label>
 
+                    <!-- Length constraints enforced client-side; backend should validate again -->
                     <input
                             type="text"
                             id="username"
@@ -115,9 +125,10 @@
                 <p class="field password-field">
 
                     <label for="password">
-                        Passwort
+                        Password
                     </label>
 
+                    <!-- autocomplete="new-password" hints browsers to suggest a strong password instead of autofilling a saved one -->
                     <input
                             type="password"
                             id="password"
@@ -127,11 +138,16 @@
                             required
                     >
 
+                    <!--
+                        Show/hide password toggle.
+                        aria-label and aria-pressed are kept in sync by register.js
+                        to reflect the current visibility state for assistive tech.
+                    -->
                     <button
                             type="button"
                             id="togglePassword"
                             class="password-toggle"
-                            aria-label="Passwort anzeigen"
+                            aria-label="Show password"
                             aria-pressed="false"
                     >
                         <svg
@@ -149,9 +165,10 @@
                 <p class="field password-field">
 
                     <label for="confirmPassword">
-                        Passwort bestätigen
+                        Confirm password
                     </label>
 
+                    <!-- Mirrors the password field; matching is validated in register.js on submit -->
                     <input
                             type="password"
                             id="confirmPassword"
@@ -161,11 +178,12 @@
                             required
                     >
 
+                    <!-- Separate toggle button, independently controlled from the one above -->
                     <button
                             type="button"
                             id="toggleConfirmPassword"
                             class="password-toggle"
-                            aria-label="Passwort anzeigen"
+                            aria-label="Show password"
                             aria-pressed="false"
                     >
                         <svg
@@ -182,6 +200,7 @@
 
             </fieldset>
 
+            <!-- Hidden by default; register.js reveals this on password mismatch or a failed request -->
             <p
                     id="registerError"
                     class="login-error"
@@ -189,15 +208,15 @@
             ></p>
 
             <button type="submit">
-                Konto eröffnen
+                Open account
             </button>
 
         </form>
 
         <footer>
-            Bereits Kunde?
+            Already a customer?
             <a href="/">
-                Zur Anmeldung
+                Back to login
             </a>
         </footer>
 

@@ -3,8 +3,11 @@ const { app, pool } = require('../backend/src/server');
 
 describe('Transactions - Successful transfer', () => {
 
+    // Token used to authenticate requests as 'alice' throughout this suite
     let aliceToken;
 
+    // Log in once before all tests to obtain a valid auth token,
+    // avoiding a separate login call in every individual test
     beforeAll(async () => {
         const response = await request(app)
             .post('/login')
@@ -16,8 +19,11 @@ describe('Transactions - Successful transfer', () => {
         aliceToken = response.body.token;
     });
 
-    test('Alice kann erfolgreich Geld überweisen', async () => {
+    test('Alice can transfer money successfully', async () => {
 
+        // Capture both balances directly from the DB before the transfer,
+        // so we can assert the exact expected change rather than
+        // hardcoding absolute balance values (which could drift between runs)
         const before = await pool.query(
             'SELECT balance FROM accounts WHERE id IN (1, 2) ORDER BY id'
         );
@@ -35,8 +41,10 @@ describe('Transactions - Successful transfer', () => {
             });
 
         expect(response.statusCode).toBe(201);
-        expect(response.body.message).toBe('Überweisung erfolgreich');
+        expect(response.body.message).toBe('Transfer completed successfully');
 
+        // Re-fetch balances after the transfer to verify the amount
+        // was correctly debited from Alice and credited to Bob
         const after = await pool.query(
             'SELECT balance FROM accounts WHERE id IN (1, 2) ORDER BY id'
         );
@@ -48,6 +56,8 @@ describe('Transactions - Successful transfer', () => {
         expect(bobAfter).toBe(bobBefore + 10);
     });
 
+    // Close the DB pool after all tests so Jest doesn't hang
+    // waiting on open connections
     afterAll(async () => {
         await pool.end();
     });

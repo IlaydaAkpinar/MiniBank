@@ -1,20 +1,23 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>MiniBank — Anmelden</title>
+    <title>MiniBank - Login</title>
 
+    <!-- Preconnect hints speed up font loading by establishing the connection early -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
+    <!-- Fraunces for display headings, Inter for body text, IBM Plex Mono for the card number -->
     <link
             href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
             rel="stylesheet"
     >
 
     <link rel="stylesheet" href="/style.css">
+    <!-- defer ensures the DOM is fully parsed before login.js runs -->
     <script src="/login.js" defer></script>
 </head>
 
@@ -22,23 +25,26 @@
 
 <main class="page">
 
+    <!-- Left brand panel: purely decorative/marketing, no functional JS hooks here -->
     <aside class="brand">
 
         <p class="brand-mark">MB</p>
 
         <h1 class="brand-headline">
-            Klar sehen,<br>
-            ruhig entscheiden.
+            See clearly,<br>
+            decide calmly.
         </h1>
 
         <p class="brand-copy">
-            Ihr Konto, Ihre Übersicht, jederzeit erreichbar.
+            Your account, your overview, available anytime.
         </p>
 
+        <!-- Mock bank card visual for branding purposes; not tied to any real account data -->
         <figure class="card-preview">
 
+            <!-- Screen-reader-only caption clarifying this is just a visual example -->
             <figcaption class="visually-hidden">
-                Beispiel einer MiniBank Testkarte
+                Example MiniBank test card
             </figcaption>
 
             <span class="card-chip" aria-hidden="true"></span>
@@ -47,13 +53,14 @@
                 TEST CARD
             </p>
 
+            <!-- Non-breaking spaces keep the card number grouped together on line wraps -->
             <p class="card-number">
                 4921&nbsp;6384&nbsp;1750&nbsp;2604
             </p>
 
             <p class="card-meta">
                 <span class="card-holder">
-                    M. MUSTERMANN
+                    M. SAMPLE
                 </span>
 
                 <span class="card-expiry">
@@ -69,13 +76,14 @@
 
     </aside>
 
+    <!-- Right panel: actual login form and logic -->
     <section class="login-panel">
 
         <header class="login-header">
-            <h2>Willkommen zurück</h2>
+            <h2>Welcome back</h2>
 
             <p>
-                Melden Sie sich mit Ihren Zugangsdaten an.
+                Sign in with your credentials.
             </p>
         </header>
 
@@ -83,14 +91,15 @@
 
             <fieldset>
 
+                <!-- Visually hidden legend gives screen readers context without cluttering the UI -->
                 <legend class="visually-hidden">
-                    Anmeldedaten
+                    Login credentials
                 </legend>
 
                 <p class="field">
 
                     <label for="username">
-                        Benutzername
+                        Username
                     </label>
 
                     <input
@@ -106,9 +115,10 @@
                 <p class="field">
 
                     <label for="password">
-                        Passwort
+                        Password
                     </label>
 
+                    <!-- Wrapper positions the show/hide toggle button inside the input -->
                     <span class="password-field">
 
                         <input
@@ -119,11 +129,16 @@
                                 required
                         >
 
+                        <!--
+                            Show/hide password toggle.
+                            aria-label and aria-pressed are kept in sync by login.js
+                            to reflect the current visibility state for assistive tech.
+                        -->
                         <button
                                 type="button"
                                 id="togglePassword"
                                 class="password-toggle"
-                                aria-label="Passwort anzeigen"
+                                aria-label="Show password"
                                 aria-pressed="false"
                         >
                             <svg
@@ -151,10 +166,11 @@
 
             <p class="field-hint">
                 <a href="/forgot-password">
-                    Passwort vergessen?
+                    Forgot password?
                 </a>
             </p>
 
+            <!-- Hidden by default; login.js reveals this with a message on failed sign-in -->
             <p
                     id="loginError"
                     class="login-error"
@@ -162,14 +178,14 @@
             ></p>
 
             <button type="submit">
-                Anmelden
+                Sign in
             </button>
 
         </form>
 
         <footer>
-            Noch kein Kunde?
-            <a href="/register">Konto eröffnen</a>
+            New to MiniBank?
+            <a href="/register">Open an account</a>
         </footer>
 
     </section>

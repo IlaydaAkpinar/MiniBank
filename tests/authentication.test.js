@@ -3,24 +3,29 @@ const { app, pool } = require('../backend/src/server');
 
 describe('Authentication', () => {
 
-    test('Zugriff ohne Token wird abgelehnt', async () => {
+    // No Authorization header at all — the most basic unauthenticated case
+    test('rejects access without a token', async () => {
         const response = await request(app)
             .get('/accounts');
 
         expect(response.statusCode).toBe(401);
-        expect(response.body.error).toBe('Kein Token vorhanden');
+        expect(response.body.error).toBe('Missing token');
     });
 
-    test('Zugriff mit ungültigem Token wird abgelehnt', async () => {
+    // A malformed/non-existent token should be rejected with 403,
+    // distinct from the 401 for a completely missing token
+    test('rejects access with an invalid token', async () => {
         const response = await request(app)
             .get('/accounts')
-            .set('Authorization', 'Bearer ungültiger-token');
+            .set('Authorization', 'Bearer invalid-token');
 
         expect(response.statusCode).toBe(403);
-        expect(response.body.error).toBe('Ungültiger Token');
+        expect(response.body.error).toBe('Invalid token');
     });
 
-    test('Zugriff mit gültigem Token wird erlaubt', async () => {
+    // End-to-end happy path: log in to obtain a real token,
+    // then use it to access a protected route
+    test('allows access with a valid token', async () => {
 
         const loginResponse = await request(app)
             .post('/login')
@@ -38,9 +43,12 @@ describe('Authentication', () => {
             .set('Authorization', `Bearer ${token}`);
 
         expect(response.statusCode).toBe(200);
+        // Confirm the endpoint returns a list of accounts, not a single object
         expect(Array.isArray(response.body)).toBe(true);
     });
 
+    // Close the DB pool after all tests so Jest doesn't hang
+    // waiting on open connections
     afterAll(async () => {
         await pool.end();
     });

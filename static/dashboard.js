@@ -1,3 +1,5 @@
+// Auth token is kept in sessionStorage (cleared when the tab closes),
+// used for every authenticated API call from this page.
 const token = sessionStorage.getItem('token');
 
 const accountNumber =
@@ -31,11 +33,14 @@ const logoutButton =
     document.getElementById('logoutButton');
 
 
+// No token at all means the user was never logged in (or already logged
+// out) — bounce straight back to the login page before we try any API calls.
 if (!token) {
     window.location.href = '/';
 }
 
 
+// Fetches the user's account and renders account number + balance.
 async function loadAccount() {
 
     try {
@@ -55,6 +60,8 @@ async function loadAccount() {
 
         if (!response.ok) {
 
+            // Token missing/expired/invalid — clear it and force a fresh login
+            // rather than showing a broken authenticated page.
             if (
                 response.status === 401 ||
                 response.status === 403
@@ -68,10 +75,10 @@ async function loadAccount() {
             }
 
             accountNumber.textContent =
-                'Konto konnte nicht geladen werden.';
+                'Account could not be loaded.';
 
             balance.textContent =
-                'Konto konnte nicht geladen werden.';
+                'Account could not be loaded.';
 
             return;
         }
@@ -80,15 +87,17 @@ async function loadAccount() {
         if (data.length === 0) {
 
             accountNumber.textContent =
-                'Kein Konto vorhanden.';
+                'No account available.';
 
             balance.textContent =
-                '0,00 €';
+                '0.00 EUR';
 
             return;
         }
 
 
+        // API returns an array (one row per account); this UI only
+        // ever displays the first one.
         const account = data[0];
 
 
@@ -96,27 +105,28 @@ async function loadAccount() {
             account.account_number;
 
         balance.textContent =
-            `${Number(account.balance)
-    .toFixed(2)
-    .replace('.', ',')} €`;
+            `${Number(account.balance).toFixed(2)} EUR`;
 
 
     } catch (error) {
 
+        // Network failure (server down, no connection, CORS, etc.) —
+        // distinct from an API error response above.
         console.error(
-            'Fehler beim Laden des Kontos:',
+            'Failed to load account:',
             error
         );
 
         accountNumber.textContent =
-            'Server nicht erreichbar.';
+            'Server is not reachable.';
 
         balance.textContent =
-            'Server nicht erreichbar.';
+            'Server is not reachable.';
     }
 }
 
 
+// Fetches the user's transaction history and renders it as a list.
 async function loadTransactions() {
 
     try {
@@ -149,19 +159,21 @@ async function loadTransactions() {
             }
 
             transactionStatus.textContent =
-                'Transaktionen konnten nicht geladen werden.';
+                'Transactions could not be loaded.';
 
             return;
         }
 
 
+        // Clear out any previously rendered items before re-rendering
+        // (loadTransactions runs again after every successful transfer).
         transactionList.innerHTML = '';
 
 
         if (data.length === 0) {
 
             transactionStatus.textContent =
-                'Noch keine Transaktionen vorhanden.';
+                'No transactions yet.';
 
             return;
         }
@@ -176,17 +188,15 @@ async function loadTransactions() {
                 document.createElement('li');
 
             const amount =
-                Number(transaction.amount)
-                    .toFixed(2)
-                    .replace('.', ',');
+                Number(transaction.amount).toFixed(2);
 
             const date =
                 new Date(transaction.created_at)
-                    .toLocaleString('de-DE');
+                    .toLocaleString('en-US');
 
 
             listItem.textContent =
-                `${transaction.sender} → ${transaction.receiver}: ${amount} € (${date})`;
+                `${transaction.sender} -> ${transaction.receiver}: ${amount} EUR (${date})`;
 
             transactionList.appendChild(listItem);
         });
@@ -195,21 +205,23 @@ async function loadTransactions() {
     } catch (error) {
 
         console.error(
-            'Fehler beim Laden der Transaktionen:',
+            'Failed to load transactions:',
             error
         );
 
         transactionStatus.textContent =
-            'Server nicht erreichbar.';
+            'Server is not reachable.';
     }
 }
 
 
 transactionForm.addEventListener('submit', async (event) => {
 
+    // Stop the browser's default form submission (full page reload).
     event.preventDefault();
 
 
+    // Reset any previous error/success messages before validating again.
     transactionError.hidden = true;
     transactionSuccess.hidden = true;
 
@@ -227,7 +239,7 @@ transactionForm.addEventListener('submit', async (event) => {
     if (!Number.isFinite(toAccount) || toAccount <= 0) {
 
         transactionError.textContent =
-            'Bitte ein gültiges Zielkonto eingeben.';
+            'Enter a valid target account.';
 
         transactionError.hidden = false;
 
@@ -240,16 +252,22 @@ transactionForm.addEventListener('submit', async (event) => {
         Math.round(amount * 100) !== amount * 100
     ) {
 
+        // Mirror the backend amount rules so users get fast feedback before the API call.
         transactionError.textContent =
-            'Bitte einen gültigen Betrag mit maximal zwei Nachkommastellen eingeben.';
+            'Enter a valid amount with at most two decimal places.';
 
         transactionError.hidden = false;
 
         return;
     }
-    
+
     try {
 
+        // NOTE: from_account is not sent here — the backend's /transactions
+        // handler reads req.body.from_account, so this will currently arrive
+        // as undefined server-side. Worth checking whether the backend
+        // should instead derive the sender account from req.user (the
+        // authenticated user) rather than expecting it in the request body.
         const response = await fetch('/transactions', {
 
             method: 'POST',
@@ -287,7 +305,7 @@ transactionForm.addEventListener('submit', async (event) => {
 
 
             transactionError.textContent =
-                data.error || 'Überweisung fehlgeschlagen.';
+                data.error || 'Transfer failed.';
 
             transactionError.hidden = false;
 
@@ -296,15 +314,18 @@ transactionForm.addEventListener('submit', async (event) => {
 
 
         transactionSuccess.textContent =
-            'Überweisung erfolgreich.';
+            'Transfer completed successfully.';
 
         transactionSuccess.hidden = false;
 
 
+        // Clear the form inputs after a successful transfer.
         toAccountInput.value = '';
         amountInput.value = '';
 
 
+        // Refresh balance and history so the UI reflects the new state
+        // immediately instead of waiting for a manual page reload.
         await loadAccount();
         await loadTransactions();
 
@@ -312,19 +333,21 @@ transactionForm.addEventListener('submit', async (event) => {
     } catch (error) {
 
         console.error(
-            'Fehler bei der Überweisung:',
+            'Failed to create transfer:',
             error
         );
 
 
         transactionError.textContent =
-            'Der Server ist momentan nicht erreichbar.';
+            'The server is currently not reachable.';
 
         transactionError.hidden = false;
     }
 });
 
 
+// Logout simply discards the local token and returns to the login page;
+// there's no server-side session to invalidate since auth is stateless JWT.
 logoutButton.addEventListener('click', () => {
 
     sessionStorage.removeItem('token');
@@ -333,6 +356,7 @@ logoutButton.addEventListener('click', () => {
 });
 
 
+// Kick off both data loads as soon as the script runs (in parallel,
+// not awaited, so neither blocks the other).
 loadAccount();
 loadTransactions();
-

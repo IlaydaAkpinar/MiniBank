@@ -9,6 +9,8 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+// Connection pool for Postgres; credentials come from environment variables
+// so nothing sensitive is hardcoded in source control.
 const pool = new Pool({
     user: process.env.DB_USER,
     host: process.env.DB_HOST,
@@ -20,26 +22,31 @@ const pool = new Pool({
 const app = express();
 const PORT = 3000;
 
-
+// Serve static assets (css/js/images) directly from the "static" folder.
 app.use(express.static('static'));
+
+// Parse incoming JSON request bodies.
 app.use(express.json());
 
+
+// ============================================================
+// JWT AUTHENTICATION
+// ============================================================
 
 const authenticateToken = (req, res, next) => {
 
     const authHeader = req.headers['authorization'];
 
+    // Expected format: "Bearer <token>"
     const token =
         authHeader && authHeader.split(' ')[1];
-
 
     if (!token) {
 
         return res.status(401).json({
-            error: 'Kein Token vorhanden'
+            error: 'Missing token'
         });
     }
-
 
     jwt.verify(
         token,
@@ -49,10 +56,9 @@ const authenticateToken = (req, res, next) => {
             if (error) {
 
                 return res.status(403).json({
-                    error: 'Ungültiger Token'
+                    error: 'Invalid token'
                 });
             }
-
 
             req.user = user;
 
@@ -62,6 +68,11 @@ const authenticateToken = (req, res, next) => {
 };
 
 
+// ============================================================
+// FRONTEND ROUTES
+// ============================================================
+
+// Public login page.
 app.get('/', (req, res) => {
 
     res.sendFile('login.html', {
@@ -70,6 +81,7 @@ app.get('/', (req, res) => {
 });
 
 
+// Dashboard requires authentication.
 app.get('/dashboard.html', authenticateToken, (req, res) => {
 
     res.sendFile('dashboard.html', {
@@ -78,7 +90,8 @@ app.get('/dashboard.html', authenticateToken, (req, res) => {
 });
 
 
-app.get('/register', authenticateToken, (req, res) => {
+// Registration page is public.
+app.get('/register', (req, res) => {
 
     res.sendFile('register.html', {
         root: 'templates'
@@ -86,12 +99,18 @@ app.get('/register', authenticateToken, (req, res) => {
 });
 
 
+// ============================================================
+// USERS
+// ============================================================
+
 app.get('/users', authenticateToken, async (req, res) => {
 
     try {
 
         const result = await pool.query(
-            'SELECT id, username FROM users WHERE id = $1',
+            `SELECT id, username
+             FROM users
+             WHERE id = $1`,
             [req.user.userId]
         );
 
@@ -102,11 +121,15 @@ app.get('/users', authenticateToken, async (req, res) => {
         console.error(error);
 
         res.status(500).json({
-            error: 'Fehler beim Abrufen der Benutzer'
+            error: 'Failed to fetch users'
         });
     }
 });
 
+
+// ============================================================
+// ACCOUNTS
+// ============================================================
 
 app.get('/accounts', authenticateToken, async (req, res) => {
 
@@ -114,17 +137,16 @@ app.get('/accounts', authenticateToken, async (req, res) => {
 
         const result = await pool.query(
             `SELECT
-accounts.id,
-    users.username,
-    accounts.account_number,
-    accounts.balance
-FROM accounts
-JOIN users
-ON accounts.user_id = users.id
-WHERE accounts.user_id = $1`,
+                 accounts.id,
+                 users.username,
+                 accounts.account_number,
+                 accounts.balance
+             FROM accounts
+                      JOIN users
+                           ON accounts.user_id = users.id
+             WHERE accounts.user_id = $1`,
             [req.user.userId]
         );
-
 
         res.json(result.rows);
 
@@ -133,11 +155,15 @@ WHERE accounts.user_id = $1`,
         console.error(error);
 
         res.status(500).json({
-            error: 'Fehler beim Abrufen der Konten'
+            error: 'Failed to fetch accounts'
         });
     }
 });
 
+
+// ============================================================
+// TRANSACTIONS - HISTORY
+// ============================================================
 
 app.get('/transactions', authenticateToken, async (req, res) => {
 
@@ -145,25 +171,24 @@ app.get('/transactions', authenticateToken, async (req, res) => {
 
         const result = await pool.query(
             `SELECT
-transactions.id,
-    sender.username AS sender,
-    receiver.username AS receiver,
-    transactions.amount,
-    transactions.created_at
-FROM transactions
-JOIN accounts AS sender_account
-ON transactions.from_account = sender_account.id
-JOIN users AS sender
-ON sender_account.user_id = sender.id
-JOIN accounts AS receiver_account
-ON transactions.to_account = receiver_account.id
-JOIN users AS receiver
-ON receiver_account.user_id = receiver.id
-WHERE sender.id = $1
-OR receiver.id = $1`,
+                 transactions.id,
+                 sender.username AS sender,
+                 receiver.username AS receiver,
+                 transactions.amount,
+                 transactions.created_at
+             FROM transactions
+                      JOIN accounts AS sender_account
+                           ON transactions.from_account = sender_account.id
+                      JOIN users AS sender
+                           ON sender_account.user_id = sender.id
+                      JOIN accounts AS receiver_account
+                           ON transactions.to_account = receiver_account.id
+                      JOIN users AS receiver
+                           ON receiver_account.user_id = receiver.id
+             WHERE sender.id = $1
+                OR receiver.id = $1`,
             [req.user.userId]
         );
-
 
         res.json(result.rows);
 
@@ -172,17 +197,25 @@ OR receiver.id = $1`,
         console.error(error);
 
         res.status(500).json({
-            error: 'Fehler beim Abrufen der Transaktionen'
+            error: 'Failed to fetch transactions'
         });
     }
 });
 
 
+// ============================================================
+// REGISTRATION
+// ============================================================
+
 app.post('/register', async (req, res) => {
 
-    const { username, password } = req.body;
+    const {
+        username,
+        password
+    } = req.body;
 
 
+    // Validate username.
     if (
         typeof username !== 'string' ||
         username.trim().length < 3 ||
@@ -191,11 +224,12 @@ app.post('/register', async (req, res) => {
 
         return res.status(400).json({
             error:
-                'Benutzername muss zwischen 3 und 50 Zeichen lang sein'
+                'Username must be between 3 and 50 characters long'
         });
     }
 
 
+    // Validate password.
     if (
         typeof password !== 'string' ||
         password.length < 8
@@ -203,11 +237,13 @@ app.post('/register', async (req, res) => {
 
         return res.status(400).json({
             error:
-                'Passwort muss mindestens 8 Zeichen lang sein'
+                'Password must be at least 8 characters long'
         });
     }
 
 
+    // Use a dedicated client because this operation uses
+    // BEGIN / COMMIT / ROLLBACK.
     const client = await pool.connect();
 
 
@@ -216,16 +252,18 @@ app.post('/register', async (req, res) => {
         await client.query('BEGIN');
 
 
+        // Hash the password before storing it.
         const hashedPassword =
             await bcrypt.hash(password, 10);
 
 
+        // Create user.
         const userResult = await client.query(
             `INSERT INTO users
-(username, password)
-VALUES
-($1, $2)
-RETURNING id, username`,
+                 (username, password)
+             VALUES
+                 ($1, $2)
+                 RETURNING id, username`,
             [
                 username.trim(),
                 hashedPassword
@@ -236,12 +274,13 @@ RETURNING id, username`,
         const user = userResult.rows[0];
 
 
+        // Automatically create a bank account for the new user.
         const accountResult = await client.query(
             `INSERT INTO accounts
-(user_id, account_number, balance)
-VALUES
-($1, $2, $3)
-RETURNING id, account_number, balance`,
+                 (user_id, account_number, balance)
+             VALUES
+                 ($1, $2, $3)
+                 RETURNING id, account_number, balance`,
             [
                 user.id,
                 `DE${Date.now()}`,
@@ -256,7 +295,7 @@ RETURNING id, account_number, balance`,
         res.status(201).json({
 
             message:
-                'Benutzer erfolgreich registriert',
+                'User registered successfully',
 
             user: user,
 
@@ -272,18 +311,19 @@ RETURNING id, account_number, balance`,
         console.error(error);
 
 
+        // PostgreSQL unique violation.
         if (error.code === '23505') {
 
             return res.status(409).json({
                 error:
-                    'Benutzername bereits vergeben'
+                    'Username already exists'
             });
         }
 
 
         res.status(500).json({
             error:
-                'Registrierung fehlgeschlagen'
+                'Registration failed'
         });
 
 
@@ -294,29 +334,37 @@ RETURNING id, account_number, balance`,
 });
 
 
+// ============================================================
+// LOGIN
+// ============================================================
+
 app.post('/login', async (req, res) => {
 
-    const { username, password } = req.body;
+    const {
+        username,
+        password
+    } = req.body;
 
 
     try {
 
         const result = await pool.query(
             `SELECT
-id,
-    username,
-    password
-FROM users
-WHERE username = $1`,
+                 id,
+                 username,
+                 password
+             FROM users
+             WHERE username = $1`,
             [username]
         );
 
 
+        // Do not reveal whether the username exists.
         if (result.rows.length === 0) {
 
             return res.status(401).json({
                 error:
-                    'Ungültige Anmeldedaten'
+                    'Invalid login credentials'
             });
         }
 
@@ -335,11 +383,12 @@ WHERE username = $1`,
 
             return res.status(401).json({
                 error:
-                    'Ungültige Anmeldedaten'
+                    'Invalid login credentials'
             });
         }
 
 
+        // Create JWT containing the authenticated user's ID.
         const token = jwt.sign(
             {
                 userId: user.id,
@@ -355,7 +404,7 @@ WHERE username = $1`,
         res.json({
 
             message:
-                'Login erfolgreich',
+                'Login successful',
 
             token
         });
@@ -367,230 +416,277 @@ WHERE username = $1`,
 
         res.status(500).json({
             error:
-                'Login fehlgeschlagen'
+                'Login failed'
         });
     }
 });
 
 
+// ============================================================
+// TRANSFERS
+// ============================================================
+
 app.post('/transactions', authenticateToken, async (req, res) => {
 
+    // IMPORTANT:
+    // from_account is intentionally NOT accepted from the client.
+    //
+    // The server determines the sender account from the authenticated
+    // user's ID contained in the verified JWT.
+
     const {
-        from_account,
         to_account,
         amount
     } = req.body;
 
 
-        if (
-            !Number.isInteger(to_account) ||
-            to_account <= 0
-        ) {
+    // --------------------------------------------------------
+    // Validate target account
+    // --------------------------------------------------------
 
-            return res.status(400).json({
-                error:
-                    'Ungültiges Zielkonto'
-            });
-        }
+    if (
+        !Number.isInteger(to_account) ||
+        to_account <= 0
+    ) {
+
+        return res.status(400).json({
+            error:
+                'Invalid target account'
+        });
+    }
+
+
+    // --------------------------------------------------------
+    // Validate amount
+    // --------------------------------------------------------
 
     if (
         typeof amount !== 'number' ||
         !Number.isFinite(amount) ||
         amount <= 0
     ) {
+
         return res.status(400).json({
-            error: 'Der Betrag muss größer als 0 sein'
+            error:
+                'Amount must be greater than 0'
         });
     }
 
-    if (Math.round(amount * 100) !== amount * 100) {
+
+    // Only allow two decimal places.
+    if (
+        Math.round(amount * 100) !== amount * 100
+    ) {
+
         return res.status(400).json({
             error:
-                'Der Betrag darf maximal zwei Nachkommastellen haben'
+                'Amount may have at most two decimal places'
         });
     }
+
+
+    try {
+
+        // ----------------------------------------------------
+        // Determine sender account from authenticated user
+        // ----------------------------------------------------
+
+        const ownAccountResult =
+            await pool.query(
+                `SELECT id
+                 FROM accounts
+                 WHERE user_id = $1`,
+                [req.user.userId]
+            );
+
+
+        if (
+            ownAccountResult.rows.length === 0
+        ) {
+
+            return res.status(404).json({
+                error:
+                    'No own account found'
+            });
+        }
+
+
+        // This is now determined by the server.
+        // The client cannot choose the sender account.
+        const fromAccount =
+            ownAccountResult.rows[0].id;
+
+
+        // ----------------------------------------------------
+        // Check whether target account exists
+        // ----------------------------------------------------
+
+        const targetAccountCheck =
+            await pool.query(
+                `SELECT id
+                 FROM accounts
+                 WHERE id = $1`,
+                [to_account]
+            );
+
+
+        if (
+            targetAccountCheck.rows.length === 0
+        ) {
+
+            return res.status(404).json({
+                error:
+                    'Target account not found'
+            });
+        }
+
+
+        // ----------------------------------------------------
+        // Prevent transfers to the same account
+        // ----------------------------------------------------
+
+        if (
+            fromAccount === to_account
+        ) {
+
+            return res.status(400).json({
+                error:
+                    'Transfers to the same account are not allowed'
+            });
+        }
+
+
+        // ----------------------------------------------------
+        // Start database transaction
+        // ----------------------------------------------------
+
+        const client =
+            await pool.connect();
+
 
         try {
 
-            if (!Number.isInteger(from_account) || from_account <= 0) {
-                return res.status(400).json({
-                    error: 'Ungültiges Absenderkonto'
-                });
-            }
-
-            const accountOwnerResult = await pool.query(
-                `SELECT id
-                 FROM accounts
-                 WHERE id = $1
-                   AND user_id = $2`,
-                [from_account, req.user.userId]
-            );
-
-            if (accountOwnerResult.rows.length === 0) {
-                return res.status(403).json({
-                    error: 'Du darfst dieses Konto nicht verwenden'
-                });
-            }
-
-            const ownAccountResult =
-                await pool.query(
-                    `SELECT id
-FROM accounts
-WHERE user_id = $1`,
-                    [req.user.userId]
-                );
+            await client.query('BEGIN');
 
 
-            if (
-                ownAccountResult.rows.length === 0
-            ) {
+            // ------------------------------------------------
+            // Debit sender
+            // ------------------------------------------------
 
-                return res.status(404).json({
-                    error:
-                        'Kein eigenes Konto gefunden'
-                });
-            }
-
-
-            const fromAccount = from_account;
-
-
-            const targetAccountCheck =
-                await pool.query(
-                    `SELECT id
-FROM accounts
-WHERE id = $1`,
-                    [to_account]
-                );
-
-
-            if (
-                targetAccountCheck.rows.length === 0
-            ) {
-
-                return res.status(404).json({
-                    error:
-                        'Zielkonto nicht gefunden'
-                });
-            }
-
-
-            if (fromAccount === to_account) {
-
-                return res.status(400).json({
-                    error:
-                        'Eine Überweisung auf das eigene Konto ist nicht möglich'
-                });
-            }
-
-
-            const client =
-                await pool.connect();
-
-
-            try {
-
-                await client.query('BEGIN');
-
-
-                const debitResult =
-                    await client.query(
-                        `UPDATE accounts
-SET balance = balance - $1
-WHERE id = $2
-AND balance >= $1
-RETURNING id, balance`,
-                        [
-                            amount,
-                            fromAccount
-                        ]
-                    );
-
-
-                if (
-                    debitResult.rows.length === 0
-                ) {
-
-                    await client.query(
-                        'ROLLBACK'
-                    );
-
-
-                    return res.status(400).json({
-                        error:
-                            'Nicht genügend Guthaben'
-                    });
-                }
-
-
+            const debitResult =
                 await client.query(
                     `UPDATE accounts
-SET balance = balance + $1
-WHERE id = $2`,
+                     SET balance = balance - $1
+                     WHERE id = $2
+                       AND balance >= $1
+                         RETURNING id, balance`,
                     [
                         amount,
-                        to_account
+                        fromAccount
                     ]
                 );
 
 
-                await client.query(
-                    `INSERT INTO transactions
-(from_account, to_account, amount)
-VALUES
-($1, $2, $3)`,
-                    [
-                        fromAccount,
-                        to_account,
-                        amount
-                    ]
-                );
-
-
-                await client.query(
-                    'COMMIT'
-                );
-
-
-                res.status(201).json({
-                    message:
-                        'Überweisung erfolgreich'
-                });
-
-
-            } catch (error) {
+            // No row means insufficient funds.
+            if (
+                debitResult.rows.length === 0
+            ) {
 
                 await client.query(
                     'ROLLBACK'
                 );
 
-                console.error(error);
 
-
-                res.status(500).json({
+                return res.status(400).json({
                     error:
-                        'Überweisung fehlgeschlagen'
+                        'Insufficient funds'
                 });
-
-
-            } finally {
-
-                client.release();
             }
+
+
+            // ------------------------------------------------
+            // Credit receiver
+            // ------------------------------------------------
+
+            await client.query(
+                `UPDATE accounts
+                 SET balance = balance + $1
+                 WHERE id = $2`,
+                [
+                    amount,
+                    to_account
+                ]
+            );
+
+
+            // ------------------------------------------------
+            // Record transaction
+            // ------------------------------------------------
+
+            await client.query(
+                `INSERT INTO transactions
+                     (from_account, to_account, amount)
+                 VALUES
+                     ($1, $2, $3)`,
+                [
+                    fromAccount,
+                    to_account,
+                    amount
+                ]
+            );
+
+
+            // ------------------------------------------------
+            // Commit
+            // ------------------------------------------------
+
+            await client.query(
+                'COMMIT'
+            );
+
+
+            res.status(201).json({
+                message:
+                    'Transfer completed successfully'
+            });
 
 
         } catch (error) {
 
+            await client.query(
+                'ROLLBACK'
+            );
+
             console.error(error);
+
 
             res.status(500).json({
                 error:
-                    'Überweisung fehlgeschlagen'
+                    'Transfer failed'
             });
-        }
-    }
-);
 
+
+        } finally {
+
+            client.release();
+        }
+
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            error:
+                'Transfer failed'
+        });
+    }
+});
+
+
+// ============================================================
+// DATABASE CONNECTION TEST
+// ============================================================
 
 pool.query(
     'SELECT NOW()',
@@ -599,14 +695,14 @@ pool.query(
         if (err) {
 
             console.error(
-                'Datenbankverbindung fehlgeschlagen:',
+                'Database connection failed:',
                 err
             );
 
         } else {
 
             console.log(
-                'Datenbankverbindung erfolgreich!'
+                'Database connection successful!'
             );
 
             console.log(
@@ -617,19 +713,29 @@ pool.query(
 );
 
 
+// ============================================================
+// STARTUP LOGGING
+// ============================================================
+
 console.log(
-    'Users-Route wurde geladen'
+    'Users route loaded'
 );
 
 console.log(
-    'Accounts-Route wurde geladen'
+    'Accounts route loaded'
 );
 
 console.log(
-    'Transactions-Route wurde geladen'
+    'Transactions route loaded'
 );
 
 
+// ============================================================
+// SERVER START
+// ============================================================
+
+// Only start the server when this file is executed directly.
+// When Jest imports the file, no separate server is started.
 if (require.main === module) {
 
     app.listen(
@@ -637,12 +743,16 @@ if (require.main === module) {
         () => {
 
             console.log(
-                `MiniBank Backend läuft auf http://localhost:${PORT}`
+                `MiniBank backend is running on http://localhost:${PORT}`
+            );
+        }
     );
 }
-);
-}
 
+
+// ============================================================
+// EXPORTS
+// ============================================================
 
 module.exports = {
     app,

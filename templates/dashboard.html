@@ -1,18 +1,20 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>MiniBank — Übersicht</title>
+    <title>MiniBank - Dashboard</title>
 
+    <!-- Google Fonts: Fraunces for display headings, Inter for body text, IBM Plex Mono for account/number styling -->
     <link
             href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
             rel="stylesheet"
     >
 
     <link rel="stylesheet" href="/style.css">
+    <!-- defer ensures the DOM is fully parsed before dashboard.js runs -->
     <script src="/dashboard.js" defer></script>
 </head>
 
@@ -23,37 +25,39 @@
     <section class="login-panel">
 
         <header class="login-header">
-            <h1>Ihre Übersicht</h1>
+            <h1>Your Dashboard</h1>
 
             <p>
-                Willkommen bei MiniBank.
+                Welcome to MiniBank.
             </p>
         </header>
 
 
+        <!-- Account overview: values are populated dynamically via JS (placeholder text shown while loading) -->
         <section>
-            <h2>Konto</h2>
+            <h2>Account</h2>
 
             <p>
-                Kontonummer:
-                <strong id="accountNumber">Wird geladen...</strong>
+                Account number:
+                <strong id="accountNumber">Loading...</strong>
             </p>
 
             <p>
-                Kontostand:
-                <strong id="balance">Wird geladen...</strong>
+                Balance:
+                <strong id="balance">Loading...</strong>
             </p>
         </section>
 
 
+        <!-- Money transfer form: submits to backend via JS (fetch), validated client- and server-side -->
         <section>
-            <h2>Geld senden</h2>
+            <h2>Send Money</h2>
 
             <form id="transactionForm">
 
                 <p class="field">
                     <label for="toAccount">
-                        Zielkonto
+                        Target account
                     </label>
 
                     <input
@@ -66,9 +70,10 @@
 
                 <p class="field">
                     <label for="amount">
-                        Betrag
+                        Amount
                     </label>
 
+                    <!-- min/step restrict input to positive values with cent precision -->
                     <input
                             type="number"
                             id="amount"
@@ -79,6 +84,7 @@
                     >
                 </p>
 
+                <!-- Feedback messages: hidden by default, toggled visible by JS depending on request outcome -->
                 <p
                         id="transactionError"
                         class="login-error"
@@ -92,30 +98,32 @@
                 ></p>
 
                 <button type="submit">
-                    Geld senden
+                    Send money
                 </button>
 
             </form>
         </section>
 
 
+        <!-- Transaction history: list populated asynchronously; status message shown while fetching -->
         <section>
-            <h2>Transaktionsverlauf</h2>
+            <h2>Transaction History</h2>
 
             <p id="transactionStatus">
-                Transaktionen werden geladen...
+                Loading transactions...
             </p>
 
             <ul id="transactionList"></ul>
         </section>
 
 
+        <!-- Logout triggers session/token cleanup and redirect, handled in dashboard.js -->
         <footer>
             <button
                     type="button"
                     id="logoutButton"
             >
-                Abmelden
+                Log out
             </button>
         </footer>
 
@@ -126,4 +134,3 @@
 </body>
 
 </html>
-

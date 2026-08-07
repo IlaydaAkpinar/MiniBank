@@ -3,8 +3,11 @@ const { app, pool } = require('../backend/src/server');
 
 describe('Transactions - Amount validation', () => {
 
+    // Token used to authenticate requests as 'alice' throughout this suite
     let aliceToken;
 
+    // Log in once before all tests to obtain a valid auth token,
+    // avoiding a separate login call in every individual test
     beforeAll(async () => {
         const response = await request(app)
             .post('/login')
@@ -16,7 +19,9 @@ describe('Transactions - Amount validation', () => {
         aliceToken = response.body.token;
     });
 
-    test('Überweisung mit negativem Betrag wird abgelehnt', async () => {
+    // Negative amounts should never be accepted, since they'd effectively
+    // reverse the direction of the transfer
+    test('rejects transfers with a negative amount', async () => {
         const response = await request(app)
             .post('/transactions')
             .set('Authorization', `Bearer ${aliceToken}`)
@@ -28,11 +33,13 @@ describe('Transactions - Amount validation', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.body.error).toBe(
-            'Der Betrag muss größer als 0 sein'
+            'Amount must be greater than 0'
         );
     });
 
-    test('Überweisung mit Betrag 0 wird abgelehnt', async () => {
+    // A zero-amount transfer is meaningless and should be rejected
+    // just like a negative one
+    test('rejects transfers with amount 0', async () => {
         const response = await request(app)
             .post('/transactions')
             .set('Authorization', `Bearer ${aliceToken}`)
@@ -44,11 +51,13 @@ describe('Transactions - Amount validation', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.body.error).toBe(
-            'Der Betrag muss größer als 0 sein'
+            'Amount must be greater than 0'
         );
     });
 
-    test('Überweisung mit ungültigem Betrag wird abgelehnt', async () => {
+    // Guard against type confusion: a stringified number should not
+    // bypass numeric validation (e.g. via loose type coercion)
+    test('rejects transfers with an invalid amount type', async () => {
         const response = await request(app)
             .post('/transactions')
             .set('Authorization', `Bearer ${aliceToken}`)
@@ -60,10 +69,12 @@ describe('Transactions - Amount validation', () => {
 
         expect(response.statusCode).toBe(400);
         expect(response.body.error).toBe(
-            'Der Betrag muss größer als 0 sein'
+            'Amount must be greater than 0'
         );
     });
 
+    // Close the DB pool after all tests so Jest doesn't hang
+    // waiting on open connections
     afterAll(async () => {
         await pool.end();
     });

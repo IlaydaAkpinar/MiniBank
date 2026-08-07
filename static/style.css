@@ -1,4 +1,5 @@
 :root {
+    /* Core palette: deep navy/gold banking aesthetic */
     --ink: #16233b;
     --navy-deep: #0e2a4d;
     --navy-mid: #17416e;
@@ -10,6 +11,7 @@
     --card-white: #ffffff;
     --muted: #62728a;
 
+    /* Fraunces for display/headings, Inter for body copy, IBM Plex Mono for numeric/card data */
     --font-display: "Fraunces", Georgia, serif;
     --font-body: "Inter", Arial, sans-serif;
     --font-mono: "IBM Plex Mono", "Courier New", monospace;
@@ -23,6 +25,7 @@ body {
     margin: 0;
     min-height: 100vh;
 
+    /* Center the login/register card both vertically and horizontally in the viewport */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -33,6 +36,8 @@ body {
     color: var(--ink);
 }
 
+/* Standard screen-reader-only utility: visually hidden but still
+   announced by assistive technology (used for <legend>/<figcaption> text) */
 .visually-hidden {
     position: absolute;
     width: 1px;
@@ -44,6 +49,7 @@ body {
 
 /* ---------- layout ---------- */
 
+/* Two-column shell: brand panel on the left, form panel on the right */
 .page {
     width: 100%;
     max-width: 900px;
@@ -63,6 +69,7 @@ body {
     position: relative;
     padding: 44px 40px;
 
+    /* Subtle diagonal hairline texture layered over the navy gradient background */
     background:
             repeating-linear-gradient(
                     115deg,
@@ -75,6 +82,7 @@ body {
     color: #eef2f7;
 }
 
+/* Circular "MB" logo mark */
 .brand-mark {
     width: 40px;
     height: 40px;
@@ -122,6 +130,7 @@ body {
     box-shadow: 0 14px 28px rgba(3, 14, 28, 0.45);
 }
 
+/* Gold chip graphic, purely decorative (no real EMV chip data involved) */
 .card-chip {
     display: block;
     width: 32px;
@@ -182,6 +191,7 @@ body {
     font-size: 14.5px;
 }
 
+/* Reset default fieldset styling so it doesn't add its own border/spacing */
 fieldset {
     border: none;
     margin: 0;
@@ -268,6 +278,7 @@ a:hover {
 
 /* ---------- responsive ---------- */
 
+/* Below 720px: stack brand panel above the form instead of side-by-side */
 @media (max-width: 720px) {
     .page {
         grid-template-columns: 1fr;
@@ -292,11 +303,15 @@ a:hover {
 
 /* ---------- password field ---------- */
 
+/* Wraps a password <input> and its show/hide toggle button so the
+   button can be absolutely positioned inside the input */
 .password-field {
     position: relative;
     display: block;
 }
 
+/* Reserve space on the right of the input so typed text never
+   runs under the toggle button */
 .password-field input {
     padding-right: 46px;
 }
@@ -345,8 +360,11 @@ a:hover {
     stroke-linejoin: round;
 }
 
-/* Auge wird beim Anzeigen durchgestrichen */
+/* Draw a slash across the eye icon while the password is visible. */
 
+/* Note: this ::after rule is currently a no-op (empty content, no
+   positioning) — the actual diagonal slash is drawn by the
+   .password-toggle.password-visible::after rule further below. */
 .password-toggle.password-visible .eye-icon::after {
     content: "";
 }
@@ -359,8 +377,11 @@ a:hover {
     position: relative;
 }
 
-/* zusätzlicher diagonaler Strich */
+/* Additional diagonal stroke for the visible-password state. */
 
+/* This pseudo-element draws a short rotated bar across the whole
+   button to visually "cross out" the eye icon, toggled via JS
+   adding/removing the .password-visible class */
 .password-toggle.password-visible::after {
     content: "";
 

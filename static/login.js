@@ -4,6 +4,8 @@ const loginError = document.getElementById('loginError');
 const passwordInput = document.getElementById('password');
 const togglePassword = document.getElementById('togglePassword');
 
+// Toggles the password field between masked and plain text, and keeps
+// the button's accessibility attributes in sync with the current state.
 togglePassword.addEventListener('click', () => {
     const passwordVisible = passwordInput.type === 'text';
 
@@ -14,8 +16,8 @@ togglePassword.addEventListener('click', () => {
     togglePassword.setAttribute(
         'aria-label',
         passwordVisible
-            ? 'Passwort anzeigen'
-            : 'Passwort verbergen'
+            ? 'Show password'
+            : 'Hide password'
     );
 
     togglePassword.setAttribute(
@@ -31,8 +33,10 @@ togglePassword.addEventListener('click', () => {
 
 
 loginForm.addEventListener('submit', async (event) => {
+    // Stop the browser's default form submission (full page reload).
     event.preventDefault();
 
+    // Reset any previous error message before trying again.
     loginError.hidden = true;
     loginError.textContent = '';
 
@@ -60,14 +64,19 @@ loginForm.addEventListener('submit', async (event) => {
 
         if (!response.ok) {
             loginError.textContent =
-                data.error || 'Anmeldung fehlgeschlagen';
+                data.error || 'Login failed';
 
             loginError.hidden = false;
             return;
         }
 
+        // Persist the JWT for subsequent authenticated requests on this page.
         sessionStorage.setItem('token', data.token);
 
+        // Fetch the protected dashboard page manually (instead of a normal
+        // redirect) so we can attach the Authorization header — a plain
+        // navigation to /dashboard.html wouldn't include the token and
+        // would get rejected by authenticateToken on the server.
         const dashboardResponse = await fetch('/dashboard.html', {
             headers: {
                 'Authorization': `Bearer ${data.token}`
@@ -78,7 +87,7 @@ loginForm.addEventListener('submit', async (event) => {
             sessionStorage.removeItem('token');
 
             loginError.textContent =
-                'Dashboard konnte nicht geladen werden.';
+                'Could not load dashboard.';
 
             loginError.hidden = false;
 
@@ -88,17 +97,19 @@ loginForm.addEventListener('submit', async (event) => {
         const dashboardHtml =
             await dashboardResponse.text();
 
+        // Replace the entire current document with the fetched dashboard
+        // markup. This swaps the page content without a real navigation,
+        // which is what lets us reuse the token we just attached above.
         document.open();
         document.write(dashboardHtml);
         document.close();
 
     } catch (error) {
-        console.error('Login-Fehler:', error);
+        console.error('Login error:', error);
 
         loginError.textContent =
-            'Der Server ist momentan nicht erreichbar.';
+            'The server is currently not reachable.';
 
         loginError.hidden = false;
     }
 });
-

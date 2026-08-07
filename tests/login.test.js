@@ -3,24 +3,22 @@ const { app, pool } = require('../backend/src/server');
 
 describe('Login', () => {
 
-    test('Login mit falschem Passwort wird abgelehnt', async () => {
+    // Wrong password for an existing user should be rejected generically
+    // (same error as e.g. unknown username, to avoid leaking which part was wrong)
+    test('rejects login with the wrong password', async () => {
         const response = await request(app)
             .post('/login')
             .send({
                 username: 'alice',
-                password: 'falschesPasswort'
+                password: 'wrongPassword'
             });
 
         expect(response.statusCode).toBe(401);
-        expect(response.body.error).toBe('Ungültige Anmeldedaten');
+        expect(response.body.error).toBe('Invalid login credentials');
     });
 
-    afterAll(async () => {
-        await pool.end();
-    });
-
-
-    test('Login mit korrektem Passwort wird akzeptiert', async () => {
+    // Correct credentials should return 200 and a usable auth token
+    test('accepts login with the correct password', async () => {
         const response = await request(app)
             .post('/login')
             .send({
@@ -30,6 +28,12 @@ describe('Login', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.body.token).toBeDefined();
+    });
+
+    // Close the DB pool after all tests so Jest doesn't hang
+    // waiting on open connections
+    afterAll(async () => {
+        await pool.end();
     });
 
 });

@@ -1,95 +1,95 @@
 # MiniBank
 
-MiniBank ist eine kleine Webanwendung, die eine vereinfachte Banking-Anwendung simuliert.
-Das Projekt wurde als **eigenständiges Lern- und Praxisprojekt** entwickelt, mit besonderem Fokus auf **Cybersecurity, sichere Webentwicklung und praktische Anwendung von IT-Security-Konzepten**.
+MiniBank is a small web application that simulates a simplified banking system.
+The project was built as an independent learning and practice project with a focus on cybersecurity, secure web development, and practical application security concepts.
 
-Ein wichtiger Bestandteil des Projekts ist es, typische Sicherheitsprobleme einer Webanwendung nicht nur theoretisch zu verstehen, sondern sie praktisch zu untersuchen, abzusichern und anschließend durch Tests zu überprüfen.
+A central goal is to understand common web application security problems in practice, harden the implementation, and verify the behavior with automated tests.
 
-## Ziele
+## Goals
 
-Mit MiniBank verfolge ich insbesondere folgende Ziele:
+MiniBank is intended to help with:
 
-* praktische Erfahrung in **Cybersecurity und Web Application Security** sammeln
-* typische Schwachstellen und Angriffsmöglichkeiten in Webanwendungen verstehen
-* Authentifizierung und Autorisierung sicher implementieren
-* sichere Verarbeitung von Benutzereingaben umsetzen
-* Backend- und Datenbanksicherheit praktisch kennenlernen
-* Sicherheitsmaßnahmen durch automatisierte Tests überprüfen
-* eigene Kenntnisse im Bereich **Penetration Testing** und Web Security weiterentwickeln
-* selbstständig neue Sicherheitskonzepte ausprobieren und deren Auswirkungen nachvollziehen
+* gaining practical experience in cybersecurity and web application security
+* understanding common vulnerabilities and attack paths in web applications
+* implementing authentication and authorization securely
+* handling user input safely
+* learning backend and database security with realistic examples
+* verifying security controls through automated tests
+* improving practical knowledge in penetration testing and web security
+* experimenting with security concepts and observing their impact
 
-Das Projekt dient damit nicht nur als technische Anwendung, sondern auch als persönliche Lernumgebung für die weitere Beschäftigung mit IT-Security.
+The project is both a technical application and a personal learning environment for continued work in IT security.
 
 ---
 
-## Security-Fokus
+## Security Focus
 
-Der Schwerpunkt von MiniBank liegt auf der Absicherung einer Webanwendung.
+MiniBank focuses on securing a web application.
 
-Aktuell werden unter anderem folgende Bereiche behandelt:
+Current security-related areas include:
 
-* **Authentifizierung**
+* **Authentication**
 
-  * Login mit Benutzername und Passwort
-  * JWT-basierte Authentifizierung
-  * geschützte API-Endpunkte
-  * Token-Prüfung über Middleware
+  * login with username and password
+  * JWT-based authentication
+  * protected API endpoints
+  * token verification through middleware
 
-* **Autorisierung**
+* **Authorization**
 
-  * Benutzer dürfen nur auf ihre eigenen Konten zugreifen
-  * Überweisungen werden auf die Berechtigung des Absenderkontos geprüft
-  * geschützte Benutzer-, Konto- und Transaktionsdaten
+  * users can access only their own accounts
+  * transfers verify ownership of the sender account
+  * protected user, account, and transaction data
 
-* **Passwortsicherheit**
+* **Password security**
 
-  * Passwörter werden nicht im Klartext gespeichert
-  * Verwendung von `bcrypt` zum Hashen und Vergleichen von Passwörtern
+  * passwords are not stored in plaintext
+  * `bcrypt` is used to hash and compare passwords
 
-* **Input Validation**
+* **Input validation**
 
-  * Prüfung von Benutzernamen
-  * Prüfung von Passwörtern
-  * Validierung von Konto-IDs
-  * Validierung von Überweisungsbeträgen
-  * Prüfung auf ungültige bzw. negative Werte
+  * username validation
+  * password validation
+  * account ID validation
+  * transfer amount validation
+  * rejection of invalid or negative values
 
-* **Datenbanksicherheit**
+* **Database security**
 
   * PostgreSQL
-  * parametrisierte SQL-Abfragen
-  * Foreign-Key-Beziehungen zwischen Benutzern, Konten und Transaktionen
-  * Transaktionen bei Geldüberweisungen
+  * parameterized SQL queries
+  * foreign key relationships between users, accounts, and transactions
+  * database transactions for money transfers
 
-* **Security Testing**
+* **Security testing**
 
-  * automatisierte Tests mit Jest
-  * HTTP-Tests mit Supertest
-  * Tests für Authentifizierung und Autorisierung
-  * Tests für fehlerhafte Eingaben
-  * Tests für Kontostände und Überweisungen
-
----
-
-##  Funktionen
-
-MiniBank verfügt aktuell unter anderem über:
-
-* Registrierung neuer Benutzer
-* Login
-* JWT-basierte Sitzungen
-* geschützte Dashboard-Seite
-* Anzeige der eigenen Kontonummer
-* Anzeige des Kontostands
-* Überweisungen zwischen Konten
-* Anzeige des Transaktionsverlaufs
-* Abmelden
-* Validierung von Eingaben
-* automatisierte Backend-Tests
+  * automated tests with Jest
+  * HTTP tests with Supertest
+  * tests for authentication and authorization
+  * tests for invalid input
+  * tests for balances and transfers
 
 ---
 
-## Technologien
+## Features
+
+MiniBank currently includes:
+
+* user registration
+* login
+* JWT-based sessions
+* protected dashboard page
+* display of the user's account number
+* display of the account balance
+* transfers between accounts
+* transaction history
+* logout
+* input validation
+* automated backend tests
+
+---
+
+## Technologies
 
 ### Backend
 
@@ -110,7 +110,7 @@ MiniBank verfügt aktuell unter anderem über:
 * **Jest**
 * **Supertest**
 
-### Entwicklung
+### Development
 
 * IntelliJ IDEA
 * Git
@@ -119,48 +119,48 @@ MiniBank verfügt aktuell unter anderem über:
 
 ---
 
-## Projektstruktur
+## Project Structure
 
 ```text
 MiniBank/
-│
-├── backend/
-│   └── src/
-│       └── server.js
-│
-├── static/
-│   ├── dashboard.js
-│   ├── login.js
-│   ├── register.js
-│   └── style.css
-│
-├── templates/
-│   ├── dashboard.html
-│   ├── login.html
-│   └── register.html
-│
-├── tests/
-│   ├── amount-validation.test.js
-│   ├── authentication.test.js
-│   ├── balance.test.js
-│   ├── invalid-account.test.js
-│   ├── login.test.js
-│   ├── registration.test.js
-│   ├── successful-transaction.test.js
-│   └── transactions.test.js
-│
-├── minibank_schema.sql
-├── package.json
-├── package-lock.json
-├── .gitignore
-└── app.py
+|
++-- backend/
+|   +-- src/
+|       +-- server.js
+|
++-- static/
+|   +-- dashboard.js
+|   +-- login.js
+|   +-- register.js
+|   +-- style.css
+|
++-- templates/
+|   +-- dashboard.html
+|   +-- login.html
+|   +-- register.html
+|
++-- tests/
+|   +-- amount-validation.test.js
+|   +-- authentication.test.js
+|   +-- balance.test.js
+|   +-- invalid-account.test.js
+|   +-- login.test.js
+|   +-- registration.test.js
+|   +-- successful-transaction.test.js
+|   +-- transactions.test.js
+|
++-- minibank_schema.sql
++-- package.json
++-- package-lock.json
++-- .gitignore
++-- app.py
 ```
 
 ---
 
-## Voraussetzungen
+## Requirements
 
-Für die Ausführung werden benötigt:
+To run the project, you need:
 
 * Node.js
 * npm
@@ -171,30 +171,28 @@ Für die Ausführung werden benötigt:
 
 ## Installation
 
-Repository klonen:
+Clone the repository:
 
 ```bash
 git clone https://github.com/IlaydaAkpinar/MiniBank.git
 cd MiniBank
 ```
 
-Abhängigkeiten installieren:
+Install dependencies:
 
 ```bash
 npm install
 ```
 
-Anschließend muss eine PostgreSQL-Datenbank eingerichtet und das Datenbankschema aus
+Then create a PostgreSQL database and load the schema from:
 
 ```text
 minibank_schema.sql
 ```
 
-eingespielt werden.
+Required credentials are configured through environment variables.
 
-Die benötigten Zugangsdaten werden über Umgebungsvariablen konfiguriert.
-
-Beispielsweise:
+Example:
 
 ```text
 DB_USER=...
@@ -205,48 +203,46 @@ DB_PORT=...
 JWT_SECRET=...
 ```
 
-Die Datei `.env` wird **nicht** in das Repository eingecheckt.
+The `.env` file is not committed to the repository.
 
 ---
 
-## Anwendung starten
+## Start The Application
 
-Der Backend-Server wird aktuell über Node.js gestartet:
+The backend server is currently started with Node.js:
 
 ```bash
 node backend/src/server.js
 ```
 
-Anschließend ist die Anwendung unter
+The application is then available at:
 
 ```text
 http://localhost:3000
 ```
 
-erreichbar.
-
 ---
 
 ## Tests
 
-Die automatisierten Tests können mit folgendem Befehl ausgeführt werden:
+Run the automated tests with:
 
 ```bash
 npm test
 ```
 
-Der aktuelle Teststand umfasst unter anderem:
+The current test coverage includes:
 
-* Authentifizierung
-* Login
-* Registrierung
-* Autorisierung von Transaktionen
-* ungültige Kontoangaben
-* ungültige Überweisungsbeträge
-* erfolgreiche Überweisungen
-* Kontostände
+* authentication
+* login
+* registration
+* transaction authorization
+* invalid account data
+* invalid transfer amounts
+* successful transfers
+* balances
 
-Aktueller Stand:
+Current status:
 
 ```text
 Test Suites: 8 passed, 8 total
@@ -255,60 +251,60 @@ Tests:       16 passed, 16 total
 
 ---
 
-## Datenbank
+## Database
 
-MiniBank verwendet PostgreSQL zur Speicherung von Benutzern, Konten und Transaktionen.
+MiniBank uses PostgreSQL to store users, accounts, and transactions.
 
-Das grundlegende Datenmodell besteht aus:
+The basic data model is:
 
 ```text
 users
-  │
-  └── accounts
-          │
-          └── transactions
+  |
+  +-- accounts
+          |
+          +-- transactions
 ```
 
-Ein Benutzer besitzt ein Konto.
-Transaktionen referenzieren ein Absender- und ein Empfängerkonto.
+Each user owns one account.
+Transactions reference a sender account and a receiver account.
 
-Überweisungen werden innerhalb einer Datenbanktransaktion durchgeführt. Dadurch wird verhindert, dass beispielsweise nur die Abbuchung erfolgt, die Gutschrift aber fehlschlägt.
-
----
-
-## Security Testing & Weiterentwicklung
-
-MiniBank wird fortlaufend erweitert und dient gleichzeitig als praktische Umgebung für das Lernen von Web Application Security.
-
-Geplante bzw. mögliche nächste Schritte umfassen beispielsweise:
-
-* weitere Security Tests
-* Untersuchung typischer Web-Schwachstellen
-* Erweiterung der Autorisierungsprüfungen
-* Verbesserung der Session- und Token-Sicherheit
-* Rate Limiting
-* Security Headers
-* CSRF-Schutz
-* Logging und Monitoring
-* weitere automatisierte Security Tests
-* praktische Tests mit Penetration-Testing-Tools
-
-Die Sicherheitsmaßnahmen sollen dabei nicht nur implementiert, sondern nach Möglichkeit auch gezielt getestet werden.
+Transfers are executed inside a database transaction. This prevents partial updates, such as debiting the sender without crediting the receiver.
 
 ---
 
-## Projektdokumentation
+## Security Testing And Next Steps
 
-Eine ausführlichere technische Dokumentation wird separat erstellt.
+MiniBank is continuously extended and also serves as a practical environment for learning web application security.
 
-Dort werden unter anderem die Architektur, Datenbankstruktur, Sicherheitsentscheidungen, Tests, erkannte Schwachstellen und deren Absicherung detaillierter beschrieben.
+Planned or possible next steps include:
+
+* additional security tests
+* investigation of common web vulnerabilities
+* expanded authorization checks
+* improved session and token security
+* rate limiting
+* security headers
+* CSRF protection
+* logging and monitoring
+* additional automated security tests
+* practical testing with penetration testing tools
+
+Security controls should be implemented and, where possible, explicitly tested.
 
 ---
 
-## Hintergrund
+## Project Documentation
 
-MiniBank ist ein eigenständig entwickeltes Lernprojekt mit dem Ziel, theoretisches Wissen praktisch anzuwenden.
+More detailed technical documentation will be created separately.
 
-Der Schwerpunkt liegt dabei auf der Verbindung von **Softwareentwicklung und Cybersecurity**. Besonders interessant sind für mich die Bereiche **Web Application Security und Penetration Testing**.
+It will cover architecture, database structure, security decisions, tests, discovered vulnerabilities, and mitigations in more detail.
 
-Das Projekt wird daher bewusst weiterentwickelt, um neue Sicherheitskonzepte praktisch zu untersuchen und mein Wissen durch eigenes Ausprobieren und Testen kontinuierlich zu erweitern.
+---
+
+## Background
+
+MiniBank is an independently developed learning project designed to turn theoretical knowledge into practical experience.
+
+The main focus is the connection between software development and cybersecurity, especially web application security and penetration testing.
+
+The project is intentionally expanded over time to explore new security concepts in practice and to keep improving through hands-on experimentation and testing.
