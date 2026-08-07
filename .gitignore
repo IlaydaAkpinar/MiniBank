@@ -1,0 +1,8 @@
+.env
+.env.test
+node_modules/
+
+.idea/
+*.iml
+
+__pycache__/

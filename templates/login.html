@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MiniBank — Anmelden</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
+            rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="/style.css">
+    <script src="/login.js" defer></script>
+</head>
+
+<body>
+
+<main class="page">
+
+    <aside class="brand">
+
+        <p class="brand-mark">MB</p>
+
+        <h1 class="brand-headline">
+            Klar sehen,<br>
+            ruhig entscheiden.
+        </h1>
+
+        <p class="brand-copy">
+            Ihr Konto, Ihre Übersicht, jederzeit erreichbar.
+        </p>
+
+        <figure class="card-preview">
+
+            <figcaption class="visually-hidden">
+                Beispiel einer MiniBank Testkarte
+            </figcaption>
+
+            <span class="card-chip" aria-hidden="true"></span>
+
+            <p class="card-label">
+                TEST CARD
+            </p>
+
+            <p class="card-number">
+                4921&nbsp;6384&nbsp;1750&nbsp;2604
+            </p>
+
+            <p class="card-meta">
+                <span class="card-holder">
+                    M. MUSTERMANN
+                </span>
+
+                <span class="card-expiry">
+                    09/29
+                </span>
+            </p>
+
+            <p class="card-brand">
+                MiniBank
+            </p>
+
+        </figure>
+
+    </aside>
+
+    <section class="login-panel">
+
+        <header class="login-header">
+            <h2>Willkommen zurück</h2>
+
+            <p>
+                Melden Sie sich mit Ihren Zugangsdaten an.
+            </p>
+        </header>
+
+        <form id="loginForm">
+
+            <fieldset>
+
+                <legend class="visually-hidden">
+                    Anmeldedaten
+                </legend>
+
+                <p class="field">
+
+                    <label for="username">
+                        Benutzername
+                    </label>
+
+                    <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            autocomplete="username"
+                            required
+                    >
+
+                </p>
+
+                <p class="field">
+
+                    <label for="password">
+                        Passwort
+                    </label>
+
+                    <span class="password-field">
+
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                autocomplete="current-password"
+                                required
+                        >
+
+                        <button
+                                type="button"
+                                id="togglePassword"
+                                class="password-toggle"
+                                aria-label="Passwort anzeigen"
+                                aria-pressed="false"
+                        >
+                            <svg
+                                    class="eye-icon"
+                                    viewBox="0 0 24 24"
+                                    aria-hidden="true"
+                            >
+                                <path
+                                        d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z"
+                                ></path>
+
+                                <circle
+                                        cx="12"
+                                        cy="12"
+                                        r="2.5"
+                                ></circle>
+                            </svg>
+                        </button>
+
+                    </span>
+
+                </p>
+
+            </fieldset>
+
+            <p class="field-hint">
+                <a href="/forgot-password">
+                    Passwort vergessen?
+                </a>
+            </p>
+
+            <p
+                    id="loginError"
+                    class="login-error"
+                    hidden
+            ></p>
+
+            <button type="submit">
+                Anmelden
+            </button>
+
+        </form>
+
+        <footer>
+            Noch kein Kunde?
+            <a href="/register">Konto eröffnen</a>
+        </footer>
+
+    </section>
+
+</main>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+    <title>MiniBank — Konto eröffnen</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link
+            href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap"
+            rel="stylesheet"
+    >
+
+    <link rel="stylesheet" href="/style.css">
+    <script src="/register.js" defer></script>
+
+
+</head>
+
+<body>
+
+<main class="page">
+
+
+    <aside class="brand">
+
+        <p class="brand-mark">MB</p>
+
+        <h1 class="brand-headline">
+            Klar sehen,<br>
+            ruhig entscheiden.
+        </h1>
+
+        <p class="brand-copy">
+            Ihr Konto, Ihre Übersicht, jederzeit erreichbar.
+        </p>
+
+        <figure class="card-preview">
+
+            <figcaption class="visually-hidden">
+                Beispiel einer MiniBank Testkarte
+            </figcaption>
+
+            <span class="card-chip" aria-hidden="true"></span>
+
+            <p class="card-label">
+                TEST CARD
+            </p>
+
+            <p class="card-number">
+                4921&nbsp;6384&nbsp;1750&nbsp;2604
+            </p>
+
+            <p class="card-meta">
+            <span class="card-holder">
+                M. MUSTERMANN
+            </span>
+
+                <span class="card-expiry">
+                09/29
+            </span>
+            </p>
+
+            <p class="card-brand">
+                MiniBank
+            </p>
+
+        </figure>
+
+    </aside>
+
+    <section class="login-panel">
+
+        <header class="login-header">
+
+            <h2>Konto eröffnen</h2>
+
+            <p>
+                Erstellen Sie Ihr persönliches MiniBank-Konto.
+            </p>
+
+        </header>
+
+        <form id="registerForm">
+
+            <fieldset>
+
+                <legend class="visually-hidden">
+                    Registrierungsdaten
+                </legend>
+
+                <p class="field">
+
+                    <label for="username">
+                        Benutzername
+                    </label>
+
+                    <input
+                            type="text"
+                            id="username"
+                            name="username"
+                            autocomplete="username"
+                            minlength="3"
+                            maxlength="50"
+                            required
+                    >
+
+                </p>
+
+                <p class="field password-field">
+
+                    <label for="password">
+                        Passwort
+                    </label>
+
+                    <input
+                            type="password"
+                            id="password"
+                            name="password"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                    >
+
+                    <button
+                            type="button"
+                            id="togglePassword"
+                            class="password-toggle"
+                            aria-label="Passwort anzeigen"
+                            aria-pressed="false"
+                    >
+                        <svg
+                                class="eye-icon"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                        >
+                            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                            <circle cx="12" cy="12" r="2.5"></circle>
+                        </svg>
+                    </button>
+
+                </p>
+
+                <p class="field password-field">
+
+                    <label for="confirmPassword">
+                        Passwort bestätigen
+                    </label>
+
+                    <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            autocomplete="new-password"
+                            minlength="8"
+                            required
+                    >
+
+                    <button
+                            type="button"
+                            id="toggleConfirmPassword"
+                            class="password-toggle"
+                            aria-label="Passwort anzeigen"
+                            aria-pressed="false"
+                    >
+                        <svg
+                                class="eye-icon"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                        >
+                            <path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"></path>
+                            <circle cx="12" cy="12" r="2.5"></circle>
+                        </svg>
+                    </button>
+
+                </p>
+
+            </fieldset>
+
+            <p
+                    id="registerError"
+                    class="login-error"
+                    hidden
+            ></p>
+
+            <button type="submit">
+                Konto eröffnen
+            </button>
+
+        </form>
+
+        <footer>
+            Bereits Kunde?
+            <a href="/">
+                Zur Anmeldung
+            </a>
+        </footer>
+
+    </section>
+
+
+</main>
+
+</body>
+</html>
