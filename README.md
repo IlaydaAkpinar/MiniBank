@@ -149,11 +149,10 @@ MiniBank/
 |   +-- successful-transaction.test.js
 |   +-- transactions.test.js
 |
-+-- minibank_schema.sql
-+-- package.json
-+-- package-lock.json
-+-- .gitignore
-+-- app.py
+| +-- minibank_schema.sql
+| +-- package.json
+| +-- package-lock.json
+| +-- .gitignore
 ```
 
 ---
