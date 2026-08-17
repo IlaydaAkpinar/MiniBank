@@ -29,45 +29,47 @@ MiniBank focuses on securing a web application.
 Current security-related areas include:
 
 * **Authentication**
-
   * login with username and password
   * JWT-based authentication
   * protected API endpoints
   * token verification through middleware
 
 * **Authorization**
-
   * users can access only their own accounts
   * transfers verify ownership of the sender account
   * protected user, account, and transaction data
 
 * **Password security**
-
   * passwords are not stored in plaintext
   * `bcrypt` is used to hash and compare passwords
+  * centrally enforced password policy (length, character classes, common-password blacklist)
+
+* **Password recovery**
+  * cryptographically secure reset tokens (`crypto.randomBytes`)
+  * only a SHA-256 hash of the token is stored
+  * tokens expire after 15 minutes and are single-use
 
 * **Input validation**
-
   * username validation
   * password validation
   * account ID validation
   * transfer amount validation
-  * rejection of invalid or negative values
+  * rejection of invalid, negative, or non-numeric values
 
 * **Database security**
-
   * PostgreSQL
   * parameterized SQL queries
   * foreign key relationships between users, accounts, and transactions
-  * database transactions for money transfers
+  * database transactions for money transfers and registration
 
 * **Security testing**
-
   * automated tests with Jest
   * HTTP tests with Supertest
   * tests for authentication and authorization
   * tests for invalid input
   * tests for balances and transfers
+
+A detailed breakdown of implemented controls and individually documented vulnerability findings is available in [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/SECURITY-INCIDENTS.md`](docs/SECURITY-INCIDENTS.md).
 
 ---
 
@@ -83,6 +85,7 @@ MiniBank currently includes:
 * display of the account balance
 * transfers between accounts
 * transaction history
+* password reset via secure token
 * logout
 * input validation
 * automated backend tests
@@ -98,6 +101,7 @@ MiniBank currently includes:
 * **PostgreSQL**
 * **bcrypt**
 * **JSON Web Token (JWT)**
+* **Node.js `crypto` (secure reset tokens)**
 
 ### Frontend
 
@@ -127,17 +131,22 @@ MiniBank/
 +-- backend/
 |   +-- src/
 |       +-- server.js
+|       +-- password-policy.js
 |
 +-- static/
 |   +-- dashboard.js
+|   +-- forgot-password.js
 |   +-- login.js
 |   +-- register.js
+|   +-- reset-password.js
 |   +-- style.css
 |
 +-- templates/
 |   +-- dashboard.html
+|   +-- forgot-password.html
 |   +-- login.html
 |   +-- register.html
+|   +-- reset-password.html
 |
 +-- tests/
 |   +-- amount-validation.test.js
@@ -149,10 +158,15 @@ MiniBank/
 |   +-- successful-transaction.test.js
 |   +-- transactions.test.js
 |
-| +-- minibank_schema.sql
-| +-- package.json
-| +-- package-lock.json
-| +-- .gitignore
++-- docs/
+|   +-- APPLICATION.md
+|   +-- SECURITY.md
+|   +-- SECURITY-INCIDENTS.md
+|
++-- minibank_schema.sql
++-- package.json
++-- package-lock.json
++-- .gitignore
 ```
 
 ---
@@ -245,7 +259,7 @@ Current status:
 
 ```text
 Test Suites: 8 passed, 8 total
-Tests:       16 passed, 16 total
+Tests:       17 passed, 17 total
 ```
 
 ---
@@ -277,11 +291,11 @@ MiniBank is continuously extended and also serves as a practical environment for
 
 Planned or possible next steps include:
 
+* rate limiting (next planned control)
 * additional security tests
 * investigation of common web vulnerabilities
 * expanded authorization checks
 * improved session and token security
-* rate limiting
 * security headers
 * CSRF protection
 * logging and monitoring
@@ -294,9 +308,26 @@ Security controls should be implemented and, where possible, explicitly tested.
 
 ## Project Documentation
 
-More detailed technical documentation will be created separately.
+Detailed documentation is available in the [`docs/`](docs) folder:
 
-It will cover architecture, database structure, security decisions, tests, discovered vulnerabilities, and mitigations in more detail.
+* [`docs/APPLICATION.md`](docs/APPLICATION.md) — architecture, features, and database structure
+* [`docs/SECURITY.md`](docs/SECURITY.md) — implemented security controls and design decisions
+* [`docs/SECURITY-INCIDENTS.md`](docs/SECURITY-INCIDENTS.md) — individually documented vulnerability findings, root causes, and fixes
+
+---
+
+## Project Status
+
+ Currently in development
+
+Early development happened locally before the repository was pushed to GitHub, so the commit history doesn't fully reflect the initial build-up of the project. From here on, feature work and security hardening (e.g. rate limiting) are tracked incrementally via commits.
+
+Planned:
+
+* rate limiting
+* security headers
+* HTTPS deployment
+* logging and monitoring
 
 ---
 
