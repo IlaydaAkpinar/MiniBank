@@ -9,6 +9,7 @@ const { Pool } = require('pg');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
+const rateLimit = require('express-rate-limit');
 const { validatePassword } = require('./password-policy');
 
 // ============================================================
@@ -37,6 +38,32 @@ app.use(express.static('static'));
 
 // Parse incoming JSON request bodies.
 app.use(express.json());
+
+// Rate limiting for authentication and password recovery endpoints.
+// This helps protect against brute-force attacks and automated abuse.
+const authLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 10, // Maximum 10 requests per IP
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+
+    message: {
+        error: 'Too many requests. Please try again later.'
+    }
+});
+
+// Rate limiting for financial transactions.
+// This limits automated or excessive transfer requests.
+const transactionLimiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    limit: 30, // Maximum 30 requests per IP
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+
+    message: {
+        error: 'Too many transaction requests. Please try again later.'
+    }
+});
 
 // ============================================================
 // JWT AUTHENTICATION
@@ -236,7 +263,7 @@ app.get('/transactions', authenticateToken, async (req, res) => {
 // REGISTRATION
 // ============================================================
 
-app.post('/register', async (req, res) => {
+app.post('/register', authLimiter,async (req, res) => {
 
     const {
         username,
@@ -402,7 +429,7 @@ app.post('/register', async (req, res) => {
 // Creates a password-reset token.
 // The actual reset page is /reset-password.
 
-app.post('/forgot-password', async (req, res) => {
+app.post('/forgot-password', authLimiter, async (req, res) => {
 
     const {
         email
@@ -743,7 +770,7 @@ app.post('/reset-password', async (req, res) => {
 // LOGIN
 // ============================================================
 
-app.post('/login', async (req, res) => {
+app.post('/login', authLimiter, async (req, res) => {
 
     const {
         username,
@@ -840,7 +867,7 @@ app.post('/login', async (req, res) => {
 // TRANSFERS
 // ============================================================
 
-app.post('/transactions', authenticateToken, async (req, res) => {
+app.post('/transactions', authenticateToken, transactionLimiter, async (req, res) => {
 
     /*
      * IMPORTANT:
