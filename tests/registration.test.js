@@ -57,8 +57,13 @@ describe('Registration', () => {
             });
 
         expect(response.statusCode).toBe(400);
+
         expect(response.body.error).toBe(
-            'Password must be at least 8 characters long'
+            'Password does not meet the security requirements'
+        );
+
+        expect(response.body.details).toContain(
+            'Password must be at least 8 characters long.'
         );
     });
 
