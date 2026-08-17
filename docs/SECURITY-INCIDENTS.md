@@ -17,12 +17,13 @@ These are development / security-testing findings from the MiniBank learning pro
 **Status:** Resolved
 **Category:** Broken Access Control / Authorization
 **Severity:** High
-**Affected component:** `POST /transactions`
+**Affected component:** POST /transactions
 
 ### Description
-During security testing of the transaction functionality, a potential authorization problem was identified around the sender account. The transaction request contained a `from_account` field. A security-sensitive account identifier should never be trusted purely because it comes from the client — if the backend used it without verifying ownership, an authenticated user could potentially initiate a transfer from another user's account.
+During security testing of the transaction functionality, a potential authorization problem was identified around the sender account. The transaction request contained a from_account field. A security-sensitive account identifier should never be trusted purely because it comes from the client — if the backend used it without verifying ownership, an authenticated user could potentially initiate a transfer from another user's account.
 
 ### Example attack scenario
+
 ```json
 {
   "from_account": 3,
@@ -30,20 +31,21 @@ During security testing of the transaction functionality, a potential authorizat
   "amount": 10
 }
 ```
-Submitted while authenticated as a different user. The key question: does the server verify that account `3` actually belongs to the authenticated user?
+
+Submitted while authenticated as a different user. The key question: does the server verify that account 3 actually belongs to the authenticated user?
 
 ### Root cause
-Sender identity must be derived from the authenticated session, not trusted from client input. The client controls the HTTP request body and can set `from_account` to anything.
+Sender identity must be derived from the authenticated session, not trusted from client input. The client controls the HTTP request body and can set from_account to anything.
 
 ### Remediation
-The endpoint no longer treats `from_account` as authoritative. The server derives the sender account from the verified JWT:
+The endpoint no longer treats from_account as authoritative. The server derives the sender account from the verified JWT:
 
-```
+```text
 JWT → req.user.userId → accounts.user_id → sender account
 ```
 
 ### Security test
-`tests/transactions.test.js` submits a manipulated `from_account` and asserts the server still uses the authenticated user's own account.
+tests/transactions.test.js submits a manipulated from_account and asserts the server still uses the authenticated user's own account.
 
 ### Result
 Resolved — the authorization decision is enforced server-side and covered by a regression test.
@@ -55,7 +57,7 @@ Resolved — the authorization decision is enforced server-side and covered by a
 **Status:** Resolved
 **Category:** Input Validation / Business Logic
 **Severity:** Medium
-**Affected component:** `POST /transactions`
+**Affected component:** POST /transactions
 
 ### Description
 Transaction amounts are security-sensitive. Untested input classes included negative amounts, zero, strings, non-finite numbers, and excessive decimal precision.
@@ -64,6 +66,7 @@ Transaction amounts are security-sensitive. Untested input classes included nega
 Financial values from the client must never be trusted without server-side validation — client-side checks alone provide no protection against a hand-crafted request.
 
 ### Remediation
+
 ```js
 if (typeof amount !== 'number' || !Number.isFinite(amount) || amount <= 0) {
   return res.status(400).json({ error: 'Amount must be greater than 0' });
@@ -74,11 +77,11 @@ if (Math.round(amount * 100) !== amount * 100) {
 ```
 
 ### Security tests
-Covered by `tests/amount-validation.test.js`:
-- `amount = -10` → `400 Amount must be greater than 0`
-- `amount = 0` → `400 Amount must be greater than 0`
-- `amount = "10"` (string) → `400`
-- amounts with more than two decimal places → `400`
+Covered by tests/amount-validation.test.js:
+- amount = -10 → 400 Amount must be greater than 0
+- amount = 0 → 400 Amount must be greater than 0
+- amount = "10" (string) → 400
+- amounts with more than two decimal places → 400
 
 ### Result
 Resolved — amounts are validated server-side before any financial operation runs.
@@ -90,7 +93,7 @@ Resolved — amounts are validated server-side before any financial operation ru
 **Status:** Resolved
 **Category:** Business Logic / Financial Integrity
 **Severity:** High
-**Affected component:** `POST /transactions`
+**Affected component:** POST /transactions
 
 ### Description
 Users must not be able to transfer more than their available balance. A balance check performed *before* the update, as a separate step, would be unsafe if the operation isn't atomic.
@@ -105,10 +108,11 @@ WHERE id = $2
   AND balance >= $1
 RETURNING id, balance;
 ```
+
 If no row is returned, the transfer is rejected.
 
 ### Security test
-`tests/balance.test.js` attempts a transfer of `999999` and expects `400 Insufficient funds`.
+tests/balance.test.js attempts a transfer of 999999 and expects 400 Insufficient funds.
 
 ### Result
 Resolved — a debit cannot succeed without sufficient funds.
@@ -120,16 +124,16 @@ Resolved — a debit cannot succeed without sufficient funds.
 **Status:** Resolved
 **Category:** Broken Access Control / Authentication
 **Severity:** High
-**Affected components:** `/users`, `/accounts`, `/transactions`, `/dashboard.html`
+**Affected components:** /users, /accounts, /transactions, /dashboard.html
 
 ### Description
 Account and transaction data must not be reachable without authentication.
 
 ### Remediation
-The `authenticateToken` middleware validates the `Authorization` header before any protected route executes.
+The authenticateToken middleware validates the Authorization header before any protected route executes.
 
 ### Security tests
-`tests/authentication.test.js` verifies: missing token → rejected, invalid token → rejected, valid token → accepted.
+tests/authentication.test.js verifies: missing token → rejected, invalid token → rejected, valid token → accepted.
 
 ### Result
 Resolved.
@@ -146,10 +150,10 @@ Resolved.
 Returning different errors for "unknown username" vs. "wrong password" would let an attacker enumerate valid usernames.
 
 ### Remediation
-Both cases return the same generic message: `Invalid login credentials`.
+Both cases return the same generic message: Invalid login credentials.
 
 ### Security test
-`tests/login.test.js` verifies an incorrect password returns the generic error.
+tests/login.test.js verifies an incorrect password returns the generic error.
 
 ### Result
 Resolved.
@@ -190,7 +194,7 @@ No direct SQL string concatenation was found anywhere in the reviewed queries �
 Password reset is effectively a second authentication path and needs its own security model: unpredictable tokens, limited lifetime, and no plaintext storage.
 
 ### Remediation
-- Tokens generated with `crypto.randomBytes(32)`
+- Tokens generated with crypto.randomBytes(32)
 - Only the SHA-256 hash is stored
 - Tokens expire after 15 minutes and are marked used after a successful reset
 - Old unused tokens for the same user are invalidated when a new reset is requested
@@ -210,7 +214,7 @@ Resolved — the reset flow covers unpredictability, expiration, hashing, and si
 Password requirements enforced only in the frontend can be trivially bypassed with a direct HTTP request.
 
 ### Remediation
-Validation lives server-side in `backend/src/password-policy.js` and is applied on both registration and password reset.
+Validation lives server-side in backend/src/password-policy.js and is applied on both registration and password reset.
 
 ### Security test
 Registration tests confirm passwords below the minimum requirements are rejected.
@@ -233,7 +237,7 @@ A transfer involves multiple writes (debit, credit, transaction record). A failu
 The full operation runs inside one PostgreSQL transaction; any error triggers a rollback.
 
 ### Verification
-`tests/successful-transaction.test.js` asserts `sender_after = sender_before - amount` and `receiver_after = receiver_before + amount`.
+tests/successful-transaction.test.js asserts sender_after = sender_before - amount and receiver_after = receiver_before + amount.
 
 ### Result
 Resolved.
@@ -257,21 +261,32 @@ Resolved.
 
 ---
 
-## Open Security Work
+## SI-011 – Missing Rate Limiting
 
-### SI-011 – Missing Rate Limiting
-
-**Status:** Open / Planned
+**Status:** Resolved
 **Category:** Denial of Service / Brute Force / Abuse Prevention
-**Affected endpoints:** `/login`, `/register`, `/forgot-password`
+**Severity:** Medium
+**Affected components:** Login endpoint, POST /transactions
 
-#### Description
-Sensitive endpoints have no request-rate limiting yet. Without it, an attacker could send repeated requests to brute-force credentials, stuff credentials, abuse the password-reset flow, or simply flood the endpoint.
+### Description
+Sensitive endpoints had no request-rate limiting. Without it, an attacker could send repeated requests to brute-force credentials, stuff credentials, abuse the login flow, or repeatedly submit transaction requests to flood the endpoint.
 
-#### Planned remediation
-A server-side rate limiter for these endpoints, verified by tests that check: normal traffic is unaffected, requests over the limit are rejected with the correct status, the limit resets after the configured window, and legitimate users can continue once it does.
+### Root cause
+The application processed repeated requests without an application-level request-rate restriction. Client-side restrictions cannot be relied upon, since an attacker communicates directly with the backend.
 
-This entry will be updated with the concrete implementation and test results once it ships.
+### Remediation
+Server-side rate limiting was implemented using express-rate-limit, applied to:
+- the login endpoint
+- POST /transactions
+
+The limiter rejects excessive requests within the configured time window instead of allowing them to reach the application logic.
+
+### Security tests
+- tests/rate-limiting.test.js — verifies normal login traffic is unaffected and excessive requests are rejected
+- tests/transaction-rate-limiting.test.js — verifies the same behavior for transaction requests
+
+### Result
+Resolved — rate limiting is implemented and verified by automated regression tests.
 
 ---
 
@@ -279,24 +294,39 @@ This entry will be updated with the concrete implementation and test results onc
 
 Security fixes are backed by automated tests wherever practical. Current suite:
 
-```
-Test Suites: 8 passed, 8 total
-Tests:       17 passed, 17 total
+```text
+Test Suites: 10 passed, 10 total
+Tests:       19 passed, 19 total
 ```
 
-Run with `npm test`. The goal is to make sure a previously fixed vulnerability can't silently come back during future changes.
+Run with npm test. The current security regression suite covers authentication, authorization, input validation, financial integrity, password security, and rate limiting. The goal is to make sure a previously fixed vulnerability can't silently come back during future changes.
+
+---
+
+## Current Open Security Work
+
+The following areas remain candidates for future hardening and are not yet resolved findings:
+
+- security headers
+- HTTPS deployment
+- logging and monitoring
+- production-grade session/token management
+- concurrency testing
+- further penetration testing
+- additional automated security tests
 
 ---
 
 ## Lessons Learned
 
-- Never trust security-sensitive values supplied by the client (e.g. `from_account`).
+- Never trust security-sensitive values supplied by the client (e.g. from_account).
 - Authentication and authorization are different concerns — being logged in doesn't mean you're allowed to do everything.
 - Input validation has to happen server-side; the frontend is not a security boundary.
 - Financial operations need atomic database transactions, not sequential unguarded writes.
 - Every security fix should ship with a regression test.
 - Error messages should avoid leaking information an attacker could use (e.g. username enumeration).
 - Password reset needs its own threat model, separate from login.
+- Sensitive endpoints benefit from server-side rate limiting to reduce brute-force and abuse risks.
 - Security testing works best as a continuous part of development, not a final pass at the end.
 
 This project is intentionally continued as a hands-on Red Team / Blue Team learning exercise.

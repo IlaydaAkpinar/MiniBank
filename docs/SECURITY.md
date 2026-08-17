@@ -2,7 +2,7 @@
 
 ## 1. Security Approach
 
-MiniBank was built as a security-focused learning project. The goal was not just to implement banking functionality, but to understand how vulnerabilities arise in web applications and how to prevent them through defensive programming, authorization checks, input validation, and automated testing.
+MiniBank was built as a security-focused learning project. The goal was not just to implement banking functionality, but to understand how vulnerabilities arise in web applications and how to prevent them through defensive programming, authorization checks, input validation, rate limiting, and automated testing.
 
 General development loop used throughout the project:
 
@@ -20,7 +20,7 @@ Implement defensive controls
 Add regression tests
 ```
 
-Detailed write-ups of individual findings live in [`SECURITY-INCIDENTS.md`](./SECURITY-INCIDENTS.md).
+Detailed write-ups of individual findings live in [SECURITY-INCIDENTS.md](./SECURITY-INCIDENTS.md).
 
 ---
 
@@ -29,38 +29,39 @@ Detailed write-ups of individual findings live in [`SECURITY-INCIDENTS.md`](./SE
 | Security Area | Status | Implementation |
 |---|---|---|
 | Password hashing | ✅ | bcrypt |
-| Password verification | ✅ | `bcrypt.compare()` |
-| Password policy | ✅ | Central `validatePassword()` |
+| Password verification | ✅ | bcrypt.compare() |
+| Password policy | ✅ | Central validatePassword() |
 | Common password protection | ✅ | Password blacklist |
-| JWT authentication | ✅ | `jsonwebtoken` |
+| JWT authentication | ✅ | jsonwebtoken |
 | JWT expiration | ✅ | 1 hour |
 | Protected endpoints | ✅ | Authentication middleware |
 | Missing token handling | ✅ | HTTP 401 |
 | Invalid token handling | ✅ | HTTP 403 |
 | Login enumeration protection | ✅ | Generic login error |
 | Password-reset enumeration protection | ✅ | Generic reset response |
-| Secure reset tokens | ✅ | `crypto.randomBytes(32)` |
+| Secure reset tokens | ✅ | crypto.randomBytes(32) |
 | Reset token hashing | ✅ | SHA-256 |
 | Reset token expiration | ✅ | 15 minutes |
-| One-time reset tokens | ✅ | `used_at` |
+| One-time reset tokens | ✅ | used_at |
 | SQL injection protection | ✅ | Parameterized queries |
 | Username validation | ✅ | 3–50 characters |
-| Duplicate usernames | ✅ | PostgreSQL `UNIQUE` |
+| Duplicate usernames | ✅ | PostgreSQL UNIQUE |
 | Atomic registration | ✅ | DB transaction |
 | Server-side account authorization | ✅ | User ID from JWT |
 | Client-controlled sender protection | ✅ | Sender derived server-side |
 | Target account validation | ✅ | Server-side existence check |
 | Self-transfer protection | ✅ | Source/target comparison |
-| Negative / zero amount protection | ✅ | `amount > 0` |
-| NaN / Infinity protection | ✅ | `Number.isFinite()` |
+| Negative / zero amount protection | ✅ | amount > 0 |
+| NaN / Infinity protection | ✅ | Number.isFinite() |
 | Decimal precision validation | ✅ | Max 2 decimal places |
 | Insufficient funds protection | ✅ | Conditional debit |
 | Atomic transfers | ✅ | DB transaction |
 | Transaction history authorization | ✅ | Authenticated user ID |
 | Secrets outside source code | ✅ | Environment variables |
-| Separate test environment | ✅ | `.env.test` |
+| Separate test environment | ✅ | .env.test |
+| Login rate limiting | ✅ | express-rate-limit |
+| Transaction rate limiting | ✅ | express-rate-limit |
 | Automated tests | ✅ | Jest + Supertest |
-| Rate limiting | 🔲 | Planned |
 
 ---
 
@@ -84,7 +85,7 @@ The application never needs to store or recover the original password.
 
 ## 4. Password Policy
 
-Enforced server-side in `backend/src/password-policy.js`, reused by both registration and password reset so the reset flow can't accidentally define weaker rules than registration.
+Enforced server-side in backend/src/password-policy.js, reused by both registration and password reset so the reset flow can't accidentally define weaker rules than registration.
 
 A valid password requires: 8+ characters, uppercase, lowercase, number, special character, and must not be on the common-password blacklist.
 
@@ -94,8 +95,8 @@ A valid password requires: 8+ characters, uppercase, lowercase, number, special 
 
 JWTs identify authenticated users. Protected endpoints verify the token before processing the request, distinguishing:
 
-- `401` — missing authentication
-- `403` — invalid/expired token
+- 401 — missing authentication
+- 403 — invalid/expired token
 
 The authenticated user's ID always comes from the verified JWT — never from a client-supplied parameter.
 
@@ -105,19 +106,19 @@ The authenticated user's ID always comes from the verified JWT — never from a 
 
 A core focus of MiniBank is preventing users from acting on behalf of other users.
 
-For money transfers, the client is **not** trusted to determine the sender account. Instead of using a client-supplied `from_account`, the server resolves:
+For money transfers, the client is **not** trusted to determine the sender account. Instead of using a client-supplied from_account, the server resolves:
 
-```
+```text
 JWT → authenticated user → own account (DB lookup) → sender account
 ```
 
-This is covered by a dedicated regression test (see SI-001 in `SECURITY-INCIDENTS.md`).
+This is covered by a dedicated regression test (see SI-001 in SECURITY-INCIDENTS.md).
 
 ---
 
 ## 7. Input Validation
 
-All security-sensitive values are validated server-side, not just in the frontend. Transaction amounts must be numeric, finite, positive, and have at most two decimal places. The backend explicitly rejects negative numbers, zero, strings, `NaN`, `Infinity`, and excess decimal precision. Target accounts are validated for existence before any transfer proceeds.
+All security-sensitive values are validated server-side, not just in the frontend. Transaction amounts must be numeric, finite, positive, and have at most two decimal places. The backend explicitly rejects negative numbers, zero, strings, NaN, Infinity, and excess decimal precision. Target accounts are validated for existence before any transfer proceeds.
 
 ---
 
@@ -140,7 +141,7 @@ User input is always passed as a query parameter, never concatenated into the SQ
 
 Transfers run inside a PostgreSQL transaction:
 
-```
+```text
 BEGIN
   debit sender
   credit receiver
@@ -148,7 +149,7 @@ BEGIN
 COMMIT
 ```
 
-Any failure triggers a `ROLLBACK`. The debit itself is conditioned on sufficient balance directly in the `UPDATE`:
+Any failure triggers a ROLLBACK. The debit itself is conditioned on sufficient balance directly in the UPDATE:
 
 ```sql
 UPDATE accounts
@@ -164,55 +165,90 @@ If no row is returned, the transfer is rejected — this prevents negative balan
 
 ## 10. Password Reset Security
 
-- Tokens generated with `crypto.randomBytes(32)` (cryptographically secure)
+- Tokens generated with crypto.randomBytes(32) (cryptographically secure)
 - Only a SHA-256 hash of the token is stored — the raw token never touches the database
 - Tokens expire after 15 minutes
-- Tokens are single-use (`used_at`)
+- Tokens are single-use (used_at)
+- Old unused tokens for the same user are invalidated when a new reset is requested
 - The reset endpoint returns the same response whether or not the email exists, preventing account enumeration
 
 ---
 
-## 11. Automated Security Testing
+## 11. Rate Limiting
+
+MiniBank uses express-rate-limit to reduce automated abuse of sensitive endpoints.
+
+Rate limiting is implemented server-side and therefore cannot be bypassed by disabling or modifying frontend JavaScript.
+
+The current implementation covers:
+
+- login requests
+- transaction requests (POST /transactions)
+
+The purpose is to mitigate:
+
+- brute-force login attempts
+- repeated authentication attempts
+- automated abuse
+- excessive transaction requests
+- request flooding
+
+Rate limiting is an additional security layer — it does not replace authentication, authorization, or input validation.
+
+Dedicated regression tests verify the behavior:
+
+- tests/rate-limiting.test.js
+- tests/transaction-rate-limiting.test.js
+
+The tests confirm that excessive requests are rejected rather than processed indefinitely. Rate limiting is therefore considered an implemented security control rather than a planned feature.
+
+---
+
+## 12. Automated Security Testing
 
 Security controls are backed by automated regression tests (Jest + Supertest):
 
+```text
+Test Suites: 10 passed, 10 total
+Tests:       19 passed, 19 total
 ```
-Test Suites: 8 passed, 8 total
-Tests:       17 passed, 17 total
-```
+
+The current suite covers JWT authentication, authorization, login behavior, registration, password validation, transaction authorization, transaction amount validation, invalid accounts, insufficient funds, successful transfers, and rate limiting.
 
 The goal for every fix is: a test that fails before the fix and passes after it, so the issue can't silently reappear.
 
 ---
 
-## 12. Security Findings
+## 13. Security Findings
 
-Individual vulnerabilities identified and fixed during development are documented with full root-cause analysis in [`SECURITY-INCIDENTS.md`](./SECURITY-INCIDENTS.md).
+Individual vulnerabilities identified and fixed during development are documented with full root-cause analysis in [SECURITY-INCIDENTS.md](./SECURITY-INCIDENTS.md).
 
 ---
 
-## 13. Planned Security Improvements
+## 14. Planned Security Improvements
 
 | Security Measure | Status |
 |---|---|
-| Rate limiting | 🔲 Planned |
-| Brute-force protection | 🔲 Planned |
+| Rate limiting | ✅ Implemented |
+| Brute-force protection | 🟡 Partially addressed through rate limiting |
 | Security headers | 🔲 Planned |
 | HTTPS deployment | 🔲 Planned |
 | Logging & monitoring | 🔲 Planned |
+| Concurrency testing | 🔲 Planned |
+| Further penetration testing | 🔲 Planned |
 
-Rate limiting is the immediate next step, targeting `/login`, `/forgot-password`, and other sensitive endpoints.
+Rate limiting provides an initial layer of brute-force and abuse protection. Further hardening and testing will continue as the project develops.
 
 ---
 
-## 14. Security Philosophy
+## 15. Security Philosophy
 
 MiniBank is intentionally built as a hands-on security learning project, cycling through:
 
-```
-Red Team thinking   → How could this functionality be abused?
-Blue Team thinking   → How can the application prevent or detect this?
-Secure development   → How is the protection implemented and tested?
+```text
+Red Team thinking    → How could this functionality be abused?
+Blue Team thinking    → How can the application prevent or detect this?
+Secure development    → How is the protection implemented and tested?
 ```
 
 Security is treated as part of every feature's development, not a separate final step.

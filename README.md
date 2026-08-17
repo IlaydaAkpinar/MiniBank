@@ -41,11 +41,11 @@ Current security-related areas include:
 
 * **Password security**
   * passwords are not stored in plaintext
-  * `bcrypt` is used to hash and compare passwords
+  * bcrypt is used to hash and compare passwords
   * centrally enforced password policy (length, character classes, common-password blacklist)
 
 * **Password recovery**
-  * cryptographically secure reset tokens (`crypto.randomBytes`)
+  * cryptographically secure reset tokens (crypto.randomBytes)
   * only a SHA-256 hash of the token is stored
   * tokens expire after 15 minutes and are single-use
 
@@ -55,6 +55,12 @@ Current security-related areas include:
   * account ID validation
   * transfer amount validation
   * rejection of invalid, negative, or non-numeric values
+
+* **Rate limiting**
+  * server-side request rate limiting via express-rate-limit
+  * applied to authentication-sensitive endpoints
+  * applied to transaction requests
+  * verified through dedicated automated tests
 
 * **Database security**
   * PostgreSQL
@@ -68,8 +74,9 @@ Current security-related areas include:
   * tests for authentication and authorization
   * tests for invalid input
   * tests for balances and transfers
+  * tests for rate limiting
 
-A detailed breakdown of implemented controls and individually documented vulnerability findings is available in [`docs/SECURITY.md`](docs/SECURITY.md) and [`docs/SECURITY-INCIDENTS.md`](docs/SECURITY-INCIDENTS.md).
+A detailed breakdown of implemented controls and individually documented vulnerability findings is available in [docs/SECURITY.md](docs/SECURITY.md) and [docs/SECURITY-INCIDENTS.md](docs/SECURITY-INCIDENTS.md).
 
 ---
 
@@ -87,7 +94,8 @@ MiniBank currently includes:
 * transaction history
 * password reset via secure token
 * logout
-* input validation
+* server-side input validation
+* rate limiting on sensitive endpoints
 * automated backend tests
 
 ---
@@ -101,7 +109,8 @@ MiniBank currently includes:
 * **PostgreSQL**
 * **bcrypt**
 * **JSON Web Token (JWT)**
-* **Node.js `crypto` (secure reset tokens)**
+* **Node.js crypto (secure reset tokens)**
+* **express-rate-limit**
 
 ### Frontend
 
@@ -154,8 +163,10 @@ MiniBank/
 |   +-- balance.test.js
 |   +-- invalid-account.test.js
 |   +-- login.test.js
+|   +-- rate-limiting.test.js
 |   +-- registration.test.js
 |   +-- successful-transaction.test.js
+|   +-- transaction-rate-limiting.test.js
 |   +-- transactions.test.js
 |
 +-- docs/
@@ -216,7 +227,7 @@ DB_PORT=...
 JWT_SECRET=...
 ```
 
-The `.env` file is not committed to the repository.
+The .env file is not committed to the repository.
 
 ---
 
@@ -254,19 +265,21 @@ The current test coverage includes:
 * invalid transfer amounts
 * successful transfers
 * balances
+* request rate limiting
+* transaction rate limiting
 
 Current status:
 
 ```text
-Test Suites: 8 passed, 8 total
-Tests:       17 passed, 17 total
+Test Suites: 10 passed, 10 total
+Tests:       19 passed, 19 total
 ```
 
 ---
 
 ## Database
 
-MiniBank uses PostgreSQL to store users, accounts, and transactions.
+MiniBank uses PostgreSQL to store users, accounts, transactions, and password reset tokens.
 
 The basic data model is:
 
@@ -289,16 +302,16 @@ Transfers are executed inside a database transaction. This prevents partial upda
 
 MiniBank is continuously extended and also serves as a practical environment for learning web application security.
 
+Rate limiting has been implemented and is covered by automated tests. Implemented security controls are continuously tested and extended.
+
 Planned or possible next steps include:
 
-* rate limiting (next planned control)
-* additional security tests
-* investigation of common web vulnerabilities
-* expanded authorization checks
-* improved session and token security
 * security headers
 * CSRF protection
+* HTTPS deployment
 * logging and monitoring
+* improved session and token security
+* concurrency testing
 * additional automated security tests
 * practical testing with penetration testing tools
 
@@ -308,26 +321,32 @@ Security controls should be implemented and, where possible, explicitly tested.
 
 ## Project Documentation
 
-Detailed documentation is available in the [`docs/`](docs) folder:
+Detailed documentation is available in the [docs/](docs) folder:
 
-* [`docs/APPLICATION.md`](docs/APPLICATION.md) — architecture, features, and database structure
-* [`docs/SECURITY.md`](docs/SECURITY.md) — implemented security controls and design decisions
-* [`docs/SECURITY-INCIDENTS.md`](docs/SECURITY-INCIDENTS.md) — individually documented vulnerability findings, root causes, and fixes
+* [docs/APPLICATION.md](docs/APPLICATION.md) — architecture, features, and database structure
+* [docs/SECURITY.md](docs/SECURITY.md) — implemented security controls and design decisions
+* [docs/SECURITY-INCIDENTS.md](docs/SECURITY-INCIDENTS.md) — individually documented vulnerability findings, root causes, and fixes
 
 ---
 
 ## Project Status
 
- Currently in development
+**Currently in development**
 
-Early development happened locally before the repository was pushed to GitHub, so the commit history doesn't fully reflect the initial build-up of the project. From here on, feature work and security hardening (e.g. rate limiting) are tracked incrementally via commits.
+Early development happened locally before the repository was pushed to GitHub, so the commit history doesn't fully reflect the initial build-up of the project. From here on, feature work and security hardening are tracked incrementally via commits, following a trunk-based development approach.
+
+Recently implemented:
+
+* server-side rate limiting (login and transaction endpoints)
+* dedicated rate-limiting regression tests
+* updated security documentation and findings
 
 Planned:
 
-* rate limiting
 * security headers
 * HTTPS deployment
 * logging and monitoring
+* further security hardening
 
 ---
 
