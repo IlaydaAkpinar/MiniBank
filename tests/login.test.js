@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Login', () => {
 
@@ -28,12 +28,6 @@ describe('Login', () => {
 
         expect(response.statusCode).toBe(200);
         expect(response.body.token).toBeDefined();
-    });
-
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
     });
 
 });

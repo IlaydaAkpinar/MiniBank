@@ -10,6 +10,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const rateLimit = require('express-rate-limit');
+const helmet = require('helmet');
 const { validatePassword } = require('./password-policy');
 
 // ============================================================
@@ -23,7 +24,10 @@ const pool = new Pool({
     host: process.env.DB_HOST,
     database: process.env.DB_NAME,
     password: process.env.DB_PASSWORD,
-    port: process.env.DB_PORT
+    port: process.env.DB_PORT,
+
+    // Allow Jest to exit once all database clients are idle.
+    allowExitOnIdle: process.env.NODE_ENV === 'test'
 });
 
 const app = express();
@@ -32,6 +36,9 @@ const PORT = 3000;
 // ============================================================
 // MIDDLEWARE
 // ============================================================
+
+// Security headers.
+app.use(helmet());
 
 // Serve static assets (css/js/images) directly from "static".
 app.use(express.static('static'));
@@ -1130,34 +1137,6 @@ app.post('/transactions', authenticateToken, transactionLimiter, async (req, res
 });
 
 // ============================================================
-// DATABASE CONNECTION TEST
-// ============================================================
-
-pool.query(
-    'SELECT NOW()',
-    (err, result) => {
-
-        if (err) {
-
-            console.error(
-                'Database connection failed:',
-                err
-            );
-
-        } else {
-
-            console.log(
-                'Database connection successful!'
-            );
-
-            console.log(
-                result.rows
-            );
-        }
-    }
-);
-
-// ============================================================
 // STARTUP LOGGING
 // ============================================================
 
@@ -1185,6 +1164,31 @@ console.log(
 // When Jest imports the file, no separate server is started.
 
 if (require.main === module) {
+
+    // Test database connection when the server starts.
+    pool.query(
+        'SELECT NOW()',
+        (err, result) => {
+
+            if (err) {
+
+                console.error(
+                    'Database connection failed:',
+                    err
+                );
+
+            } else {
+
+                console.log(
+                    'Database connection successful!'
+                );
+
+                console.log(
+                    result.rows
+                );
+            }
+        }
+    );
 
     app.listen(
         PORT,

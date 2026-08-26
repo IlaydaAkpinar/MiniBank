@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Transactions - Amount validation', () => {
 
@@ -71,12 +71,6 @@ describe('Transactions - Amount validation', () => {
         expect(response.body.error).toBe(
             'Amount must be greater than 0'
         );
-    });
-
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
     });
 
 });

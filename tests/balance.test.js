@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Transactions - Balance', () => {
 
@@ -37,10 +37,5 @@ describe('Transactions - Balance', () => {
         );
     });
 
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
-    });
 
 });

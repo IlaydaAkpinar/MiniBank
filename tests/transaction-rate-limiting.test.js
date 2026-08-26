@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Transaction rate limiting', () => {
 
@@ -59,12 +59,6 @@ describe('Transaction rate limiting', () => {
         expect(response.body.error).toBe(
             'Too many transaction requests. Please try again later.'
         );
-    });
-
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
     });
 
 });

@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Transactions - Invalid account', () => {
 
@@ -37,11 +37,4 @@ describe('Transactions - Invalid account', () => {
             'Target account not found'
         );
     });
-
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
-    });
-
 });

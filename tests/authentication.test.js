@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Authentication', () => {
 
@@ -45,12 +45,6 @@ describe('Authentication', () => {
         expect(response.statusCode).toBe(200);
         // Confirm the endpoint returns a list of accounts, not a single object
         expect(Array.isArray(response.body)).toBe(true);
-    });
-
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
     });
 
 });

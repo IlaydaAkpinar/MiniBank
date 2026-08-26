@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Registration', () => {
 
@@ -81,12 +81,6 @@ describe('Registration', () => {
         expect(response.body.error).toBe(
             'Username already exists'
         );
-    });
-
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
     });
 
 });

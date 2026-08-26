@@ -56,10 +56,4 @@ describe('Transactions - Successful transfer', () => {
         expect(bobAfter).toBe(bobBefore + 10);
     });
 
-    // Close the DB pool after all tests so Jest doesn't hang
-    // waiting on open connections
-    afterAll(async () => {
-        await pool.end();
-    });
-
 });

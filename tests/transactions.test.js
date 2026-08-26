@@ -1,5 +1,5 @@
 const request = require('supertest');
-const { app, pool } = require('../backend/src/server');
+const { app } = require('../backend/src/server');
 
 describe('Transactions - Authorization', () => {
 
@@ -40,8 +40,4 @@ describe('Transactions - Authorization', () => {
         );
     });
 
-    // Close the DB pool after all tests.
-    afterAll(async () => {
-        await pool.end();
-    });
 });

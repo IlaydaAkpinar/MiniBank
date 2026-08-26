@@ -61,6 +61,7 @@ Detailed write-ups of individual findings live in [SECURITY-INCIDENTS.md](./SECU
 | Separate test environment | ✅ | .env.test |
 | Login rate limiting | ✅ | express-rate-limit |
 | Transaction rate limiting | ✅ | express-rate-limit |
+| Security headers | ✅ | Helmet |
 | Automated tests | ✅ | Jest + Supertest |
 
 ---
@@ -182,8 +183,10 @@ Rate limiting is implemented server-side and therefore cannot be bypassed by dis
 
 The current implementation covers:
 
-- login requests
-- transaction requests (POST /transactions)
+- login requests (`POST /login`)
+- registration requests (`POST /register`)
+- password-reset requests (`POST /forgot-password` and `POST /reset-password`)
+- transaction requests (`POST /transactions`)
 
 The purpose is to mitigate:
 
@@ -204,13 +207,37 @@ The tests confirm that excessive requests are rejected rather than processed ind
 
 ---
 
-## 12. Automated Security Testing
+## 12. Security Headers
+
+MiniBank uses Helmet to add security-related HTTP response headers.
+
+Helmet provides multiple browser security protections, including:
+
+- Content Security Policy (CSP)
+- X-Content-Type-Options
+- X-Frame-Options
+- Referrer-Policy
+- Strict-Transport-Security (HSTS) when deployed over HTTPS
+- additional security-related headers provided by Helmet
+
+These headers reduce the risk of common browser-based attacks and provide an additional layer of defense beyond application-level validation and authorization.
+
+The security headers are applied server-side and therefore do not depend on frontend JavaScript.
+
+The implementation is covered by an automated regression test:
+
+- `tests/security-headers.test.js`
+The test verifies that security headers are present on HTTP responses.
+
+---
+
+## 13. Automated Security Testing
 
 Security controls are backed by automated regression tests (Jest + Supertest):
 
 ```text
-Test Suites: 10 passed, 10 total
-Tests:       19 passed, 19 total
+Test Suites: 11 passed, 11 total
+Tests:       20 passed, 20 total
 ```
 
 The current suite covers JWT authentication, authorization, login behavior, registration, password validation, transaction authorization, transaction amount validation, invalid accounts, insufficient funds, successful transfers, and rate limiting.
@@ -219,19 +246,19 @@ The goal for every fix is: a test that fails before the fix and passes after it,
 
 ---
 
-## 13. Security Findings
+## 14. Security Findings
 
 Individual vulnerabilities identified and fixed during development are documented with full root-cause analysis in [SECURITY-INCIDENTS.md](./SECURITY-INCIDENTS.md).
 
 ---
 
-## 14. Planned Security Improvements
+## 15. Planned Security Improvements
 
 | Security Measure | Status |
 |---|---|
 | Rate limiting | ✅ Implemented |
 | Brute-force protection | 🟡 Partially addressed through rate limiting |
-| Security headers | 🔲 Planned |
+| Security headers |  ✅ Implemented  |
 | HTTPS deployment | 🔲 Planned |
 | Logging & monitoring | 🔲 Planned |
 | Concurrency testing | 🔲 Planned |
@@ -241,7 +268,7 @@ Rate limiting provides an initial layer of brute-force and abuse protection. Fur
 
 ---
 
-## 15. Security Philosophy
+## 16. Security Philosophy
 
 MiniBank is intentionally built as a hands-on security learning project, cycling through:
 
